@@ -6,6 +6,7 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore, uic
 import time
 
+#####################################
 #-------------------------------------------import 구역
 import cv2
 from numpy.core.fromnumeric import mean
@@ -25,7 +26,7 @@ url = "https://www.youtube.com/watch?v=cMkZ6A7wngk"
 video = pafy.new(url)
 best = video.getbest(preftype="mp4")
 
-#------------------------------------------- code parsing
+#-------------------------------------------코드 파싱파트
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=int, default=101)
 parser.add_argument('--cam_id', type=int, default=0)
@@ -35,7 +36,14 @@ parser.add_argument('--scale_factor', type=float, default=0.7125)
 parser.add_argument('--file', type=str, default=None, help="Optionally use a video file instead of a live camera")
 args = parser.parse_args()
 
-#------------------------------------------ yeonhoon
+#-------------------------------------------연훈쓰 함수
+"""
+data에서 각 좌표를 뽑아내는 함수들
+leg_points
+shoulder_points
+body_points
+get_nose
+"""
 
 color = (0,0,250)
 test = "Lower"
@@ -48,10 +56,11 @@ def angle_between(x1,y1, x2, y2, x3,y3): #세 x,y로 각도를 구하는 방식
     degree = 360 - (deg2 - deg1 if deg1 <= deg2 else 360 - (deg1 - deg2))
     return degree
 
+# ---------- 장연훈 함수 (수정) #########################################################################################################
 # ratio: 코와 발목의 y좌표 비율
 # grad: 프레임별 ratio의 주기에 따른 그래프의 기울기(+일 경우 내려감, -일 경우 올라옴, 정지하는 부분에서 0에 가까움)
 # 무릎과 골반의 y 차이가 가까워질 때
-def squat_down(ratio, ratio_arr, grad, squat_knee_angle, left_knee_angle, right_knee_angle, left_hip_gap, right_hip_gap):
+def squat_down(ratio, ratio_arr, grad, squat_knee_angle, left_knee_angle, right_knee_angle, left_hip_gap, right_hip_gap,  standing_ratio):
     global color
     global test
     global count_flag
@@ -95,9 +104,8 @@ angle_list_dict={
     'R hip':[],
     'L hip':[],
     'R knee':[],
-    'L knee':[], 
+    'L knee':[],
 }
-
 #함수 --------------------------- 이준영
 def angle_flag(now_angle,now_mins,now_maxs,now_flag,errocounter,joint,wrongtext): #이준영 반복부분 해결하기위한 것
     global angle_list_dict
@@ -214,7 +222,7 @@ class MyWindow(QMainWindow, form_class):
         self.setupUi(self)
         self.setWindowTitle('Do홈트')
 
-        self.imgLabel.setPixmap(QtGui.QPixmap('img/squat_ex.jpg'))
+        self.imgLabel.setPixmap(QtGui.QPixmap('posenet/cat.jpg'))
         self.startButton.clicked.connect(self.start_btn_clicked)
         self.stopButton.clicked.connect(self.stop_btn_clicked)
 
@@ -233,6 +241,7 @@ class MyWindow(QMainWindow, form_class):
         self.startButton.setEnabled(True)
         self.stopButton.setEnabled(False)
         print(self.running,"stoped..")
+
         QtCore.QCoreApplication.quit()
 
     def run(self, myLabel):
@@ -248,13 +257,14 @@ class MyWindow(QMainWindow, form_class):
         global L_elbow
         #모델 열고 시작
         time_count = 0
+        standing_ratio = 0
         with tf.Session() as sess:
             model_cfg, model_outputs = posenet.load_model(args.model, sess)  #model_outputs는 텐서 객체들의 리스트
             output_stride = model_cfg['output_stride']
             if args.file is not None:
                 cap = cv2.VideoCapture(args.file)
             else:
-                cap = cv2.VideoCapture(1) # 
+                cap = cv2.VideoCapture(0) # 
 
             peaple_count=1 #한명만 실행 지금 코드가 그대로 되어있음
 
@@ -272,10 +282,10 @@ class MyWindow(QMainWindow, form_class):
             R_knee_flag = 3
             L_hip_flag = 3
             R_hip_flag = 3
-            L_knee_errocounter = 0 #에러표시 유지값
-            R_knee_errocounter = 0 #에러표시 유지값
-            L_hip_errocounter = 0  #에러표시 유지값
-            R_hip_errocounter = 0  #에러표시 유지값
+            # L_knee_errocounter = 0 #에러표시 유지값
+            # R_knee_errocounter = 0 #에러표시 유지값
+            # L_hip_errocounter = 0  #에러표시 유지값
+            # R_hip_errocounter = 0  #에러표시 유지값
 
             wrongtexts={
                 (0,0):"",
@@ -290,6 +300,8 @@ class MyWindow(QMainWindow, form_class):
                 (1,1):0    
             }
             #-----------------------------------------------------연훈
+            x_arr = np.zeros((17))
+            y_arr = np.zeros((17))
             ratio_arr = []
             nose_arr = []
             grad_check = []
@@ -324,6 +336,9 @@ class MyWindow(QMainWindow, form_class):
                         max_pose_detections=peaple_count,
                         min_pose_score=min_pose_score)
 
+                    if pose_scores[0]<min_pose_score:
+                        real_start = False
+                        
                     keypoint_coords *= output_scale
 
                     out_img = display_image
@@ -379,15 +394,7 @@ class MyWindow(QMainWindow, form_class):
                         for i,v in angle_dict.items():
                             angle_save[i]=int(angle_cal(k_c[v[0]],k_c[v[1]],k_c[v[2]]))
                         
-                        #------------------------------신은빈 stading pose 검출------------------------------
-                        angle_save['R shoulder'] = int(angle_cal(k_c[angle_dict['R shoulder'][0]],k_c[angle_dict['R shoulder'][1]],k_c[angle_dict['R shoulder'][2]]))
-                        angle_save['R elbow'] = int(angle_cal(k_c[angle_dict['R elbow'][0]],k_c[angle_dict['R elbow'][1]],k_c[angle_dict['R elbow'][2]]))
-                        angle_save['R pelvis'] = int(angle_cal(k_c[angle_dict['R pelvis'][0]],k_c[angle_dict['R pelvis'][1]],k_c[angle_dict['R pelvis'][2]]))
-                        angle_save['R knee'] = int(angle_cal(k_c[angle_dict['R knee'][0]],k_c[angle_dict['R knee'][1]],k_c[angle_dict['R knee'][2]]))
-                        angle_save['L shoulder'] = int(angle_cal(k_c[angle_dict['L shoulder'][0]],k_c[angle_dict['L shoulder'][1]],k_c[angle_dict['L shoulder'][2]]))
-                        angle_save['L elbow'] = int(angle_cal(k_c[angle_dict['L elbow'][0]],k_c[angle_dict['L elbow'][1]],k_c[angle_dict['L elbow'][2]]))
-                        angle_save['L pelvis'] = int(angle_cal(k_c[angle_dict['L pelvis'][0]],k_c[angle_dict['L pelvis'][1]],k_c[angle_dict['L pelvis'][2]]))
-                        angle_save['L knee'] = int(angle_cal(k_c[angle_dict['L knee'][0]],k_c[angle_dict['L knee'][1]],k_c[angle_dict['L knee'][2]]))
+                      
 
                         #----------------------------------------------------연훈이형 코드(:코의 속도가 음수일때, 현재 무릎 각도를 측정하여/높이를 낮추고 있다면, 아직 부족하다를 보여줌)
                         # 발목과 코의 위치 비율 구하기
@@ -504,16 +511,16 @@ class MyWindow(QMainWindow, form_class):
                         left_knee_hip_gap = abs(k_c[11][0] - k_c[13][0])
                         right_knee_hip_gap = abs(k_c[12][0] - k_c[14][0])
 
+                    
                         global test
                         global color
 
                         squat_down(ratio, ratio_arr,
                                  grad, squat_knee_angle, angle_save["L knee"],  angle_save["R knee"], 
-                                 left_knee_hip_gap, right_knee_hip_gap)
+                                 left_knee_hip_gap, right_knee_hip_gap,
+                                 standing_ratio)
                         out_img=cv2.putText(out_img, test, (50,100), cv2.FONT_HERSHEY_DUPLEX, 2, color=color, thickness=2)
                         squat_rep = f"Rep: {squat_count}"
-                        # if squat_rep == 10:
-                        #     squat_rep = 'break'
                         out_img = cv2.putText(out_img, squat_rep, (350,50), cv2.FONT_HERSHEY_PLAIN, 4, color = (0,0,0), thickness=4)
 
                         #<운동체커 0:내려가는중 1:올라가는중 2:최저 정상범위 3:최고 정상범위 4:운동 오류>
@@ -535,10 +542,13 @@ class MyWindow(QMainWindow, form_class):
                             # R_hip_flag,R_hip_errocounter,out_img=angle_text(1,1,R_hip_flag,R_hip_errocounter,out_img)
 
                             errocounter,wrongtexts,out_img=angle_text(errocounter,wrongtexts,out_img)       
+
+                            
                         #print("LN:{},{:.1f}\tRN:{},{:.1f}\tLH:{},{:.1f}\tRT:{},{:.1f}".format(L_knee_flag,angle_save['L knee'],R_knee_flag,angle_save['R knee'],L_hip_flag,angle_save['L hip'],R_hip_flag,angle_save['R hip']))
 
+                            
+
                     out_img = cv2.cvtColor(out_img, cv2.COLOR_BGR2RGB)
-                    #time.sleep(0.05)
                     qImg = QtGui.QImage(out_img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
                     pixmap = QtGui.QPixmap.fromImage(qImg)
                     
