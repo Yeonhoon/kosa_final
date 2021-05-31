@@ -211,7 +211,7 @@ L_hip_maxs=(155,170)
 R_hip_mins=(90,120) # 오른쪽 옆구리각도 최저 정상범위 설정
 R_hip_maxs=(165,175)
 
-form_class = uic.loadUiType('ui/test_ui_2.ui')[0]
+form_class = uic.loadUiType('ui/test_ui_3.ui')[0]
  
 class MyWindow(QMainWindow, form_class):
     def __init__(self):
@@ -220,8 +220,8 @@ class MyWindow(QMainWindow, form_class):
         self.setupUi(self)
         self.setWindowTitle('Do홈트')
 
-        self.imgLabel_test.setPixmap(QtGui.QPixmap('posenet/ed.jpg'))
-        self.imgLabel.setPixmap(QtGui.QPixmap('posenet/al.jpg'))
+        self.refLabel.setPixmap(QtGui.QPixmap('posenet/ed.jpg'))
+        self.camLabel.setPixmap(QtGui.QPixmap('posenet/al.jpg'))
         self.startButton.clicked.connect(self.start_btn_clicked)
         self.stopButton.clicked.connect(self.stop_btn_clicked)
 
@@ -230,11 +230,11 @@ class MyWindow(QMainWindow, form_class):
         self.startButton.setEnabled(False)
         self.stopButton.setEnabled(True)
 
-        label_ref = self.imgLabel_test
+        label_ref = self.refLabel
         th_ref = threading.Thread(target=self.run_ref, args=(label_ref,))
         th_ref.start()
 
-        label = self.imgLabel
+        label = self.camLabel
         th = threading.Thread(target=self.run, args=(label,))
         th.start()
         print(self.running,"started..")
@@ -594,10 +594,10 @@ class MyWindow(QMainWindow, form_class):
                         errocounter,wrongtexts,out_img=angle_text(errocounter,wrongtexts,out_img)       
                     #print("LN:{},{:.1f}\tRN:{},{:.1f}\tLH:{},{:.1f}\tRT:{},{:.1f}".format(L_knee_flag,angle_save['L knee'],R_knee_flag,angle_save['R knee'],L_hip_flag,angle_save['L hip'],R_hip_flag,angle_save['R hip']))
 
-                    out_img = cv2.cvtColor(out_img, cv2.COLOR_BGR2RGB)
-                    qImg = QtGui.QImage(out_img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
-                    pixmap = QtGui.QPixmap.fromImage(qImg)
-                    myLabel.setPixmap(pixmap)
+                out_img = cv2.cvtColor(out_img, cv2.COLOR_BGR2RGB)
+                qImg = QtGui.QImage(out_img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
+                pixmap = QtGui.QPixmap.fromImage(qImg)
+                myLabel.setPixmap(pixmap)
                 time.sleep(.05)
 
             cap.release()
