@@ -208,9 +208,9 @@ L_knee_mins=(70,105) # 왼쪽 무릎각도 최저 정상범위 설정
 L_knee_maxs=(165,180)
 R_knee_mins=(70,105) # 오른쪽 무릎각도 최저 정상범위 설정
 R_knee_maxs=(165,180)
-L_hip_mins=(85,120) # 왼쪽 옆구리각도 최저 정상범위 설정
+L_hip_mins=(80,120) # 왼쪽 옆구리각도 최저 정상범위 설정
 L_hip_maxs=(155,170) 
-R_hip_mins=(85,120) # 오른쪽 옆구리각도 최저 정상범위 설정
+R_hip_mins=(80,120) # 오른쪽 옆구리각도 최저 정상범위 설정
 R_hip_maxs=(155,175)
 
 form_class = uic.loadUiType('ui/test_ui_2.ui')[0]
@@ -250,7 +250,7 @@ class MyWindow(QMainWindow, form_class):
 
     def run_test(self, myLabel):
         global real_start
-        cap_test = cv2.VideoCapture("hedo.mp4")
+        cap_test = cv2.VideoCapture("hedo_a.mp4")
         startcount=0
         while (self.running) and (real_start==False):
             res, img = cap_test.read()
@@ -264,13 +264,14 @@ class MyWindow(QMainWindow, form_class):
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 
                 myLabel.setPixmap(pixmap)
-                time.sleep(0.03)
+                time.sleep(0.04)
             elif startcount==0:
-                cap_test = cv2.VideoCapture("hedo.mp4")
+                cap_test = cv2.VideoCapture("hedo_a.mp4")
                 startcount=1
             else:
                 cap_test = cv2.VideoCapture("heready.mp4")
-        cap_test = cv2.VideoCapture("hedo.mp4")
+        cap_test = cv2.VideoCapture("hedo_f.mp4")
+        now_tape="f"
         while (self.running) and (real_start==True):
             res, img = cap_test.read()
             if res:
@@ -278,14 +279,18 @@ class MyWindow(QMainWindow, form_class):
                 img = img[20:, :].copy()
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 h,w,c = img.shape
-                time.sleep(0.03)
+                time.sleep(0.04)
                 qImg = QtGui.QImage(img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 
                 myLabel.setPixmap(pixmap)
             else:
-                cap_test = cv2.VideoCapture("hedo.mp4")
-
+                if now_tape=="f":
+                    cap_test = cv2.VideoCapture("hedo_l.mp4")
+                    now_tape="l"
+                else:
+                    cap_test = cv2.VideoCapture("hedo_f.mp4")
+                    now_tape="f"
 
 
     def run(self, myLabel):
@@ -586,7 +591,7 @@ class MyWindow(QMainWindow, form_class):
                         errocounter,wrongtexts,out_img=angle_text(errocounter,wrongtexts,out_img)       
 
                         
-                    print("{},{},{},{}".format())
+                    # print("{},{},{},{}".format())
 
                         
 
