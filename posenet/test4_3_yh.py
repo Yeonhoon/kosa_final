@@ -380,14 +380,14 @@ class MyWindow(QMainWindow, form_class):
                         angle_save[i]=int(angle_cal(k_c[v[0]],k_c[v[1]],k_c[v[2]]))
                     
                     #------------------------------신은빈 stading pose 검출------------------------------
-                    angle_save['R shoulder'] = int(angle_cal(k_c[angle_dict['R shoulder'][0]],k_c[angle_dict['R shoulder'][1]],k_c[angle_dict['R shoulder'][2]]))
-                    angle_save['R elbow'] = int(angle_cal(k_c[angle_dict['R elbow'][0]],k_c[angle_dict['R elbow'][1]],k_c[angle_dict['R elbow'][2]]))
-                    angle_save['R pelvis'] = int(angle_cal(k_c[angle_dict['R pelvis'][0]],k_c[angle_dict['R pelvis'][1]],k_c[angle_dict['R pelvis'][2]]))
-                    angle_save['R knee'] = int(angle_cal(k_c[angle_dict['R knee'][0]],k_c[angle_dict['R knee'][1]],k_c[angle_dict['R knee'][2]]))
-                    angle_save['L shoulder'] = int(angle_cal(k_c[angle_dict['L shoulder'][0]],k_c[angle_dict['L shoulder'][1]],k_c[angle_dict['L shoulder'][2]]))
-                    angle_save['L elbow'] = int(angle_cal(k_c[angle_dict['L elbow'][0]],k_c[angle_dict['L elbow'][1]],k_c[angle_dict['L elbow'][2]]))
-                    angle_save['L pelvis'] = int(angle_cal(k_c[angle_dict['L pelvis'][0]],k_c[angle_dict['L pelvis'][1]],k_c[angle_dict['L pelvis'][2]]))
-                    angle_save['L knee'] = int(angle_cal(k_c[angle_dict['L knee'][0]],k_c[angle_dict['L knee'][1]],k_c[angle_dict['L knee'][2]]))
+                    # angle_save['R shoulder'] = int(angle_cal(k_c[angle_dict['R shoulder'][0]],k_c[angle_dict['R shoulder'][1]],k_c[angle_dict['R shoulder'][2]]))
+                    # angle_save['R elbow'] = int(angle_cal(k_c[angle_dict['R elbow'][0]],k_c[angle_dict['R elbow'][1]],k_c[angle_dict['R elbow'][2]]))
+                    # angle_save['R pelvis'] = int(angle_cal(k_c[angle_dict['R pelvis'][0]],k_c[angle_dict['R pelvis'][1]],k_c[angle_dict['R pelvis'][2]]))
+                    # angle_save['R knee'] = int(angle_cal(k_c[angle_dict['R knee'][0]],k_c[angle_dict['R knee'][1]],k_c[angle_dict['R knee'][2]]))
+                    # angle_save['L shoulder'] = int(angle_cal(k_c[angle_dict['L shoulder'][0]],k_c[angle_dict['L shoulder'][1]],k_c[angle_dict['L shoulder'][2]]))
+                    # angle_save['L elbow'] = int(angle_cal(k_c[angle_dict['L elbow'][0]],k_c[angle_dict['L elbow'][1]],k_c[angle_dict['L elbow'][2]]))
+                    # angle_save['L pelvis'] = int(angle_cal(k_c[angle_dict['L pelvis'][0]],k_c[angle_dict['L pelvis'][1]],k_c[angle_dict['L pelvis'][2]]))
+                    # angle_save['L knee'] = int(angle_cal(k_c[angle_dict['L knee'][0]],k_c[angle_dict['L knee'][1]],k_c[angle_dict['L knee'][2]]))
 
                     #---------------------------------------------------- yeonhoon
                     # 발목과 코의 위치 비율 구하기
