@@ -41,6 +41,8 @@ color = (0,0,250)
 test = ""
 count_flag = False
 squat_count = 0
+feet_flag = False
+knee_flag = False
 
 def angle_between(x1,y1, x2, y2, x3,y3): #세 x,y로 각도를 구하는 방식
     deg1 = (360 + degrees(atan2(x1 - x2, y1 - y2))) % 360
@@ -60,14 +62,43 @@ def triangle_points(points):
     
     return min(angles)
 
+def check_knee_width(left_shoulder_x, right_shoulder_x, left_knee_x, right_knee_x):
+    shoulder_width = abs(left_shoulder_x - right_shoulder_x)
+    knee_width = abs(left_knee_x - right_knee_x)
 
-def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_angle, left_hip_gap, right_hip_gap):
+    knee_gap = shoulder_width / knee_width
+    return knee_gap
+
+def check_feet_width(left_shoulder_x, right_shoulder_x, left_ankle_x, right_ankle_x):
+    shoulder_width = abs(left_shoulder_x - right_shoulder_x)
+    ankle_width = abs(left_ankle_x - right_ankle_x)
+
+    feet_gap = shoulder_width / ankle_width
+    return feet_gap
+
+
+def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_angle, left_hip_gap, right_hip_gap, knee_gap):
+    global feet_flag
     global color
     global test
     global count_flag
     global squat_count
+    global knee_flag
+    
+    # #시작 시 발폭이 너무 좁을때
+    # if feet_gap > 1.5:
+    #     test = "Legs Wider"
+    #     color = (0,255,255)
+    #     feet_flag = True
+    # elif feet_gap < 0.45:
+    #     test = "Legs Too Wide"
+    #     feet_flag = True
+    # else:
+    #     feet_flag = False
+
     # 내려갔을 때
-    if mean(angles_arr[-10:-5]) < mean(angles_arr[-5:]) and angle - angles_arr[0]>=10 :
+    if mean(angles_arr[-10:-5]) < mean(angles_arr[-5:]) and angle - angles_arr[0]>=5 :
+        
         if left_knee_angle > squat_knee_angle * 1.2 and right_knee_angle > squat_knee_angle * 1.2: 
             test="Lower"
             color = (0,0,250)
@@ -77,20 +108,24 @@ def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_
             test="Good"
             count_flag = True
             color = (255,0,0)
-        x= "down"
-        
-    # 올라올 때
-    if mean(angles_arr[-10:-5]) > mean(angles_arr[-5:]):
-        x="up"
 
+        # 무릎이 너무 모이는 경우
+        if knee_gap >= 1.3:
+            knee_flag = True
+
+        # 올라올 때
+    if mean(angles_arr[-10:-5]) > mean(angles_arr[-5:]):
     # 내려갔다 올라와서 멈출 때
-        if min(angles_arr) * 0.9 < angle < min(angles_arr) * 1.1:
-            x = 'ready'
+        if angle <= angles_arr[0] * 0.90:
             if count_flag:
                 count_flag = False
                 squat_count +=1
                 print(f"rep: {squat_count}")
-    
+
+            if knee_flag:
+                test = "Knee Wider"
+                color = (0,0,255)
+                knee_flag = False
     
 angle_list_dict={
     'R hip':[],
@@ -215,7 +250,7 @@ class MyWindow(QMainWindow, form_class):
         self.setupUi(self)
         self.setWindowTitle('Do홈트')
 
-        self.imgLabel.setPixmap(QtGui.QPixmap('img/squat_ex.jpg'))
+        self.camLabel.setPixmap(QtGui.QPixmap('img/squat_ex.jpg'))
         self.startButton.clicked.connect(self.start_btn_clicked)
         self.stopButton.clicked.connect(self.stop_btn_clicked)
 
@@ -224,7 +259,7 @@ class MyWindow(QMainWindow, form_class):
         self.startButton.setEnabled(False)
         self.stopButton.setEnabled(True)
 
-        label = self.imgLabel
+        label = self.camLabel
         th = threading.Thread(target=self.run, args=(label,))
         th.start()
         print(self.running,"started..")
@@ -349,7 +384,6 @@ class MyWindow(QMainWindow, form_class):
                 for ii, score in enumerate(pose_scores):
                     if score < min_part_score:
                         continue
-                    
                     results = []
                     results_else = []#신뢰도 낮은 값 처리를 위한 나머지 리스트
 
@@ -475,6 +509,20 @@ class MyWindow(QMainWindow, form_class):
                         
                         if time_count > 2:
                             real_start = True
+                    
+                    if len(k_c) > 1:
+                        if (k_c[5][1]- k_c[6][1]) / (k_c[15][1] - k_c[16][1]) < 0.4:
+                            time_count = 0
+                            out_img = cv2.putText(out_img,
+                                    'Legs Too Wide',
+                                    (50, 80), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,255), 1, cv2.LINE_AA) 
+                    
+                    if len(k_c) > 1:
+                        if (k_c[5][1]- k_c[6][1]) / (k_c[15][1] - k_c[16][1]) > 1.3:
+                            time_count = 0
+                            out_img = cv2.putText(out_img,
+                                    'Legs Wider',
+                                    (50, 80), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,255), 1, cv2.LINE_AA) 
 
                     else:
                         time_count = 0
@@ -497,7 +545,8 @@ class MyWindow(QMainWindow, form_class):
                     angle = triangle_points(points)
                     angles_arr.append(angle)
                     
-                        
+                    knee_gap = check_knee_width(k_c[5][1], k_c[6][1], k_c[13][1],k_c[14][1])
+                    feet_gap = check_feet_width(k_c[5][1], k_c[6][1], k_c[15][1],k_c[16][1])
                     # 자세 판별
                     squat_knee_angle = 90
                     left_knee_hip_gap = abs(k_c[11][0] - k_c[13][0])
@@ -508,7 +557,7 @@ class MyWindow(QMainWindow, form_class):
                     if len(angles_arr)>5:
                         squat_down(angle, angles_arr, 
                                 squat_knee_angle, angle_save["L knee"],  angle_save["R knee"], 
-                                left_knee_hip_gap, right_knee_hip_gap)
+                                left_knee_hip_gap, right_knee_hip_gap, knee_gap)
                         out_img=cv2.putText(out_img, test, (50,100), cv2.FONT_HERSHEY_DUPLEX, 2, color=color, thickness=2)
                         squat_rep = f"Rep: {squat_count}"
                         out_img = cv2.putText(out_img, squat_rep, (350,50), cv2.FONT_HERSHEY_PLAIN, 4, color = (0,0,0), thickness=4)
@@ -534,11 +583,10 @@ class MyWindow(QMainWindow, form_class):
                         errocounter,wrongtexts,out_img=angle_text(errocounter,wrongtexts,out_img)       
                     #print("LN:{},{:.1f}\tRN:{},{:.1f}\tLH:{},{:.1f}\tRT:{},{:.1f}".format(L_knee_flag,angle_save['L knee'],R_knee_flag,angle_save['R knee'],L_hip_flag,angle_save['L hip'],R_hip_flag,angle_save['R hip']))
 
-                    out_img = cv2.cvtColor(out_img, cv2.COLOR_BGR2RGB)
-                    qImg = QtGui.QImage(out_img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
-                    pixmap = QtGui.QPixmap.fromImage(qImg)
-                    myLabel.setPixmap(pixmap)
-                time.sleep(.05)
+                out_img = cv2.cvtColor(out_img, cv2.COLOR_BGR2RGB)
+                qImg = QtGui.QImage(out_img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
+                pixmap = QtGui.QPixmap.fromImage(qImg)
+                myLabel.setPixmap(pixmap)
 
             cap.release()
             print("Thread end.")
