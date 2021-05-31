@@ -61,12 +61,15 @@ def triangle_points(points):
     return min(angles)
 
 
+video_player=True#비디오 재생 트리거
 def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_angle, left_hip_gap, right_hip_gap):
     global color
     global test
     global count_flag
     global squat_count
+    global video_player#비디오 재생 트리거
     # 내려갔을 때
+    x=""
     if mean(angles_arr[-10:-5]) < mean(angles_arr[-5:]) and angle - angles_arr[0]>=10 :
         if left_knee_angle > squat_knee_angle * 1.2 and right_knee_angle > squat_knee_angle * 1.2: 
             test="Lower"
@@ -75,6 +78,7 @@ def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_
                 squat_knee_angle <= right_knee_angle < squat_knee_angle * 1.2) or \
                 (left_hip_gap < 20 or right_hip_gap < 20):
             test="Good"
+            video_player=True #다 앉았을때 video재생 준비 완료
             count_flag = True
             color = (255,0,0)
         x= "down"
@@ -84,9 +88,10 @@ def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_
         x="up"
 
     # 내려갔다 올라와서 멈출 때
-        if min(angles_arr) * 0.9 < angle < min(angles_arr) * 1.1:
+        if min(angles_arr) * 0.9 < angle < min(angles_arr) * 1.1: #완전히 "섰다"의 인식이 쫌 여유가 있는 듯 합니다
             x = 'ready'
             if count_flag:
+                video_player=True#다 서있을 때 video 재생 준비 완료
                 count_flag = False
                 squat_count +=1
                 print(f"rep: {squat_count}")
@@ -206,7 +211,7 @@ L_hip_maxs=(155,170)
 R_hip_mins=(90,120) # 오른쪽 옆구리각도 최저 정상범위 설정
 R_hip_maxs=(165,175)
 
-form_class = uic.loadUiType('ui/test_ui.ui')[0]
+form_class = uic.loadUiType('ui/test_ui_2.ui')[0]
  
 class MyWindow(QMainWindow, form_class):
     def __init__(self):
@@ -215,7 +220,8 @@ class MyWindow(QMainWindow, form_class):
         self.setupUi(self)
         self.setWindowTitle('Do홈트')
 
-        self.imgLabel.setPixmap(QtGui.QPixmap('img/squat_ex.jpg'))
+        self.imgLabel_test.setPixmap(QtGui.QPixmap('posenet/ed.jpg'))
+        self.imgLabel.setPixmap(QtGui.QPixmap('posenet/al.jpg'))
         self.startButton.clicked.connect(self.start_btn_clicked)
         self.stopButton.clicked.connect(self.stop_btn_clicked)
 
@@ -223,6 +229,10 @@ class MyWindow(QMainWindow, form_class):
         self.running = True
         self.startButton.setEnabled(False)
         self.stopButton.setEnabled(True)
+
+        label_ref = self.imgLabel_test
+        th_ref = threading.Thread(target=self.run_ref, args=(label_ref,))
+        th_ref.start()
 
         label = self.imgLabel
         th = threading.Thread(target=self.run, args=(label,))
@@ -235,6 +245,56 @@ class MyWindow(QMainWindow, form_class):
         self.stopButton.setEnabled(False)
         print(self.running,"stoped..")
         QtCore.QCoreApplication.quit()
+
+
+    def run_ref(self, myLabel):
+        global real_start
+        global video_player
+        cap_test = cv2.VideoCapture("hedo_a.mp4")
+        startcount=0
+        while (self.running) and (real_start==False):
+            res, img = cap_test.read()
+            if res:
+                img = cv2.resize(img, dsize=(0, 0), fx=0.8, fy=0.8, interpolation=cv2.INTER_LINEAR)
+                img = img[20:, :].copy()
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                h,w,c = img.shape
+
+                qImg = QtGui.QImage(img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
+                pixmap = QtGui.QPixmap.fromImage(qImg)
+                
+                myLabel.setPixmap(pixmap)
+                time.sleep(0.04)
+            elif startcount==0:
+                cap_test = cv2.VideoCapture("hedo_a.mp4")
+                startcount=1
+            else:
+                cap_test = cv2.VideoCapture("heready.mp4")
+        cap_test = cv2.VideoCapture("hedo_f.mp4")
+        video_player=False
+        now_tape="f"
+        while (self.running) and (real_start==True):
+            res, img = cap_test.read()
+            if res:
+                img = cv2.resize(img, dsize=(0, 0), fx=0.8, fy=0.8, interpolation=cv2.INTER_LINEAR)
+                img = img[20:, :].copy()
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                h,w,c = img.shape
+                time.sleep(0.04)
+                qImg = QtGui.QImage(img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
+                pixmap = QtGui.QPixmap.fromImage(qImg)
+                
+                myLabel.setPixmap(pixmap)
+            else:
+                if now_tape=="f" and video_player==True:#비디오 재생 트리거가 켜져있고 이전 비디오가 f일때
+                    cap_test = cv2.VideoCapture("hedo_l.mp4")#비디오를 l로 재생
+                    video_player=False#비디오 준비 false
+                    now_tape="l"#현재 비디오 l
+                elif now_tape=="l" and video_player==True:
+                    cap_test = cv2.VideoCapture("hedo_f.mp4")
+                    video_player=False
+                    now_tape="f"
+                    
 
     def run(self, myLabel):
         global running
