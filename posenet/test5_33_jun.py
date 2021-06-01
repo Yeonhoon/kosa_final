@@ -63,7 +63,7 @@ def triangle_points(points):
     return min(angles)
 
 
-video_player=True#비디오 재생 트리거
+video_player=1#비디오 재생 트리거
 def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_angle, left_hip_gap, right_hip_gap):
     global color
     global test
@@ -81,7 +81,8 @@ def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_
                 squat_knee_angle <= right_knee_angle < squat_knee_angle * 1.2) or \
                 (left_hip_gap < 20 or right_hip_gap < 20):
             test="Good"
-            video_player=True #다 앉았을때 video재생 준비 완료
+            print("AA")
+            video_player=0 #다 앉았을때 video재생 준비 완료
             count_flag = True
             color = (255,0,0)
         x= "down"
@@ -94,7 +95,8 @@ def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_
         if min(angles_arr) * 0.9 < angle < min(angles_arr) * 1.1: #완전히 "섰다"의 인식이 쫌 여유가 있는 듯 합니다
             x = 'ready'
             if count_flag:
-                video_player=True#다 서있을 때 video 재생 준비 완료
+                print("BB")
+                video_player=1#다 서있을 때 video 재생 준비 완료
                 count_flag = False
                 squat_count +=1
                 if squat_count %10 == 0:
@@ -259,11 +261,12 @@ class MyWindow(QMainWindow, form_class):
         global cam_start
         cap_test = cv2.VideoCapture("hedo_a.mp4")
         startcount=0
-        
-        while (self.running) and (real_start==False):
-            if cam_start:
+        now_tape="l"
+        while (self.running):
+            print(video_player)
+            if (cam_start!=0):
                 res, img = cap_test.read()
-                if res:
+                if res: #영상이 인식이 된다면
                     img = cv2.resize(img, dsize=(0, 0), fx=0.8, fy=0.8, interpolation=cv2.INTER_LINEAR)
                     img = img[20:, :].copy()
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -273,54 +276,26 @@ class MyWindow(QMainWindow, form_class):
                     pixmap = QtGui.QPixmap.fromImage(qImg)
                     
                     myLabel.setPixmap(pixmap)
-                    time.sleep(0.04)
-                elif startcount==0:
-                    cap_test = cv2.VideoCapture("hedo_a.mp4")
-                    startcount=1
-                else:
-                    break
+                    time.sleep(0.03)
+                else: #영상이 끝났다면
+                    if real_start==False:#사람이 인식되지 않았을 때
+                        if startcount<=0:#두번 반복을 위한
+                            cap_test = cv2.VideoCapture("hedo_a.mp4")#두번째 예시 스쿼트 시작
+                            startcount+=1
+                        elif startcount>=1:
+                            cap_test = cv2.VideoCapture("heready.mp4")#대기 영상
+                            cam_start=2  #캠 인식 시작
+                    if real_start==True:#사람이 인식 될 때
+                        if now_tape=="f" and video_player==0:#비디오 재생 트리거가 켜져있고 이전 비디오가 f일때
+                            cap_test = cv2.VideoCapture("hedo_l.mp4")#비디오를 l로 재생
+                            now_tape="l"#현재 비디오 l
+                        elif now_tape=="l" and video_player==1:
+                            cap_test = cv2.VideoCapture("hedo_f.mp4")
+                            now_tape="f"
+            else:
+                continue
         
        
-        while (self.running):
-            res, img = cap_test.read()
-            if (real_start==True):
-                if res:
-                    img = cv2.resize(img, dsize=(0, 0), fx=0.8, fy=0.8, interpolation=cv2.INTER_LINEAR)
-                    img = img[20:, :].copy()
-                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                    h,w,c = img.shape
-                    time.sleep(0.04)
-                    qImg = QtGui.QImage(img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
-                    pixmap = QtGui.QPixmap.fromImage(qImg)
-                    
-                    myLabel.setPixmap(pixmap)
-                else:
-                    if now_tape=="f" and video_player==True:#비디오 재생 트리거가 켜져있고 이전 비디오가 f일때
-                        cap_test = cv2.VideoCapture("hedo_l.mp4")#비디오를 l로 재생
-                        video_player=False#비디오 준비 false
-                        now_tape="l"#현재 비디오 l
-                    elif now_tape=="l" and video_player==True:
-                        cap_test = cv2.VideoCapture("hedo_f.mp4")
-                        video_player=False
-                        now_tape="f"
-            else:
-                if res:
-                    img = cv2.resize(img, dsize=(0, 0), fx=0.8, fy=0.8, interpolation=cv2.INTER_LINEAR)
-                    img = img[20:, :].copy()
-                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                    h,w,c = img.shape
-                    time.sleep(0.04)
-                    qImg = QtGui.QImage(img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
-                    pixmap = QtGui.QPixmap.fromImage(qImg)
-                    
-                    myLabel.setPixmap(pixmap)
-                else:
-                    if real_start==True:
-                        cap_test = cv2.VideoCapture("hedo_f.mp4")
-                        video_player=False
-                        now_tape="f"
-                    else:
-                        cap_test = cv2.VideoCapture("heready.mp4")
 
     def run(self, myLabel):
         global running
@@ -342,8 +317,8 @@ class MyWindow(QMainWindow, form_class):
             if args.file is not None:
                 cap = cv2.VideoCapture(args.file)
             else:
-                cap = cv2.VideoCapture(0) # 
-            cam_start = 1
+                cap = cv2.VideoCapture(0) 
+            
 
             peaple_count=1 #한명만 실행 지금 코드가 그대로 되어있음
 
@@ -389,6 +364,7 @@ class MyWindow(QMainWindow, form_class):
             start = time.time()
             frame_count = 0
 
+            
             while self.running:
                 start_time = time.time()
                 if cam_start==2:
@@ -631,12 +607,15 @@ class MyWindow(QMainWindow, form_class):
                         #print("LN:{},{:.1f}\tRN:{},{:.1f}\tLH:{},{:.1f}\tRT:{},{:.1f}".format(L_knee_flag,angle_save['L knee'],R_knee_flag,angle_save['R knee'],L_hip_flag,angle_save['L hip'],R_hip_flag,angle_save['R hip']))
                 else:
                     _,out_img=cap.read()
+                    time.sleep(0.01)
                     h,w,c = out_img.shape
+                    if cam_start==0:
+                        cam_start=1
                 out_img = cv2.cvtColor(out_img, cv2.COLOR_BGR2RGB)
                 qImg = QtGui.QImage(out_img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 myLabel.setPixmap(pixmap)
-                #time.sleep(.05)
+                
 
             cap.release()
             print("Thread end.")
