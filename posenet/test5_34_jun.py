@@ -260,12 +260,14 @@ class MyWindow(QMainWindow, form_class):
         global video_player
         global cam_start
         
-        startcount=-1
-        now_tape="l"
+        cap_test = cv2.VideoCapture("video/hedo_a.mp4")
+        startcount = 0
+        now_tape = "l"
+
         while (self.running):
             if (cam_start!=0):
                 res, img = cap_test.read()
-                if res and startcount!=-1: #영상이 인식이 된다면
+                if res: #영상이 인식이 된다면
                     img = cv2.resize(img, dsize=(0, 0), fx=0.8, fy=0.8, interpolation=cv2.INTER_LINEAR)
                     img = img[20:, :].copy()
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -279,17 +281,17 @@ class MyWindow(QMainWindow, form_class):
                 else: #영상이 끝났다면
                     if real_start==False:#사람이 인식되지 않았을 때
                         if startcount<=0:#두번 반복을 위한
-                            cap_test = cv2.VideoCapture("hedo_a.mp4")#두번째 예시 스쿼트 시작
+                            cap_test = cv2.VideoCapture("video/hedo_a.mp4")#두번째 예시 스쿼트 시작
                             startcount+=1
                         elif startcount>=1:
-                            cap_test = cv2.VideoCapture("heready.mp4")#대기 영상
+                            cap_test = cv2.VideoCapture("video/heready.mp4")#대기 영상
                             cam_start=2  #캠 인식 시작
                     if real_start==True:#사람이 인식 될 때
                         if now_tape=="f" and video_player==0:#비디오 재생 트리거가 켜져있고 이전 비디오가 f일때
-                            cap_test = cv2.VideoCapture("hedo_l.mp4")#비디오를 l로 재생
+                            cap_test = cv2.VideoCapture("video/hedo_l.mp4")#비디오를 l로 재생
                             now_tape="l"#현재 비디오 l
                         elif now_tape=="l" and video_player==1:
-                            cap_test = cv2.VideoCapture("hedo_f.mp4")
+                            cap_test = cv2.VideoCapture("video/hedo_f.mp4")
                             now_tape="f"
             else:
                 continue

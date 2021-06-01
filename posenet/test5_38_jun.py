@@ -1,10 +1,10 @@
-import cv2
+
 import threading
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui
 from PyQt5 import QtCore, uic
-import time
+
 
 #-------------------------------------------import 구역
 import cv2
@@ -41,7 +41,7 @@ color = (0,0,250)
 test = ""
 count_flag = False
 squat_count = 0
-
+knee_flag = False
 squat_set = 0
 
 def angle_between(x1,y1, x2, y2, x3,y3): #세 x,y로 각도를 구하는 방식
@@ -62,46 +62,81 @@ def triangle_points(points):
     
     return min(angles)
 
+#---------------------스쿼트 관련 상수
+CUSTOM_SQUAT_SET = 3
+CUSTOM_SQUAT_COUNT = 2
 
-video_player=1#비디오 재생 트리거
-def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_angle, left_hip_gap, right_hip_gap):
+video_player = 1 #비디오 재생 트리거
+running = False
+rest_flag = False
+
+def check_knee_width(left_shoulder_x, right_shoulder_x, left_knee_x, right_knee_x):
+    shoulder_width = abs(left_shoulder_x - right_shoulder_x)
+    knee_width = abs(left_knee_x - right_knee_x)
+    knee_gap = shoulder_width / knee_width
+    return knee_gap
+
+def check_feet_width(left_shoulder_x, right_shoulder_x, left_ankle_x, right_ankle_x):
+    shoulder_width = abs(left_shoulder_x - right_shoulder_x)
+    ankle_width = abs(left_ankle_x - right_ankle_x)
+    feet_gap = shoulder_width / ankle_width
+    return feet_gap
+
+
+def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_angle, left_hip_gap, right_hip_gap, knee_gap):
     global color
     global test
     global count_flag
     global squat_count
     global video_player#비디오 재생 트리거
     global squat_set
-    # 내려갔을 때
-    x=""
-    if mean(angles_arr[-10:-5]) < mean(angles_arr[-5:]) and angle - angles_arr[0]>=10 :
-        if left_knee_angle > squat_knee_angle * 1.2 and right_knee_angle > squat_knee_angle * 1.2: 
-            test="Lower"
-            color = (0,0,250)
-        elif (squat_knee_angle <= left_knee_angle < squat_knee_angle * 1.2 or 
-                squat_knee_angle <= right_knee_angle < squat_knee_angle * 1.2) or \
-                (left_hip_gap < 20 or right_hip_gap < 20):
-            test="Good"
-            print("AA")
-            video_player=0 #다 앉았을때 video재생 준비 완료
-            count_flag = True
-            color = (255,0,0)
-        x= "down"
-        
-    # 올라올 때
-    if mean(angles_arr[-10:-5]) > mean(angles_arr[-5:]):
-        x="up"
+    global running
+    global rest_flag
+    global knee_flag
 
-    # 내려갔다 올라와서 멈출 때
-        if min(angles_arr) * 0.9 < angle < min(angles_arr) * 1.1: #완전히 "섰다"의 인식이 쫌 여유가 있는 듯 합니다
-            x = 'ready'
-            if count_flag:
-                print("BB")
-                video_player=1#다 서있을 때 video 재생 준비 완료
-                count_flag = False
-                squat_count +=1
-                if squat_count %10 == 0:
-                    squat_set += 1
-                print(f"rep: {squat_count}")
+    # 내려갔을 때
+    if len(angles_arr)>10:
+        if mean(angles_arr[-10:-5]) < mean(angles_arr[-5:]) and angle > angles_arr[0] + 5 :
+
+            if left_knee_angle > squat_knee_angle * 1.2 and right_knee_angle > squat_knee_angle * 1.2: 
+                test="Lower"
+                color = (0,0,250)
+
+            elif (squat_knee_angle <= left_knee_angle < squat_knee_angle * 1.2 or 
+                    squat_knee_angle <= right_knee_angle < squat_knee_angle * 1.2) or \
+                    (left_hip_gap < 20 or right_hip_gap < 20):
+                test="Good"
+                video_player=0 #다 앉았을때 video재생 준비 완료
+                count_flag = True
+                color = (255,0,0)
+
+            # 무릎이 너무 모이는 경우
+            if knee_gap >= 1.2:
+                knee_flag = True
+
+        # 올라올 때
+        if mean(angles_arr[-10:-5]) > mean(angles_arr[-5:]):
+            # 내려갔다 올라와서 멈출 때
+            if np.median(angles_arr[:5])*0.95 <= angle <= np.median(angles_arr[:5]) * 1.05: #디테일 조정함@@@@@@@@@@@@@@@@@@@@@@@
+                if count_flag:
+                    video_player=1#다 서있을 때 video 재생 준비 완료
+                    print(angle)
+                    count_flag = False
+                    squat_count +=1
+                    if squat_count - CUSTOM_SQUAT_COUNT == 0:
+                        squat_set += 1
+                        squat_count = 0
+
+                        running = False
+                        rest_flag = True
+
+                    print(f"rep: {squat_count}")
+
+                # 무릎이 너무 모이는 경우
+                if knee_flag:
+                    test = "Knee Wider"
+                    color = (0,0,255)
+                    knee_flag = False
     
     
 angle_list_dict={
@@ -110,6 +145,7 @@ angle_list_dict={
     'R knee':[],
     'L knee':[], 
 }
+
 
 #함수 --------------------------- 이준영
 def angle_flag(now_angle,now_mins,now_maxs,now_flag,errocounter,joint,wrongtext): #이준영 반복부분 해결하기위한 것
@@ -154,17 +190,21 @@ def angle_flag(now_angle,now_mins,now_maxs,now_flag,errocounter,joint,wrongtext)
 
 def angle_text(errocounter,wrongtexts,out_img):
     okcount=0
+    nocount=0
     for (x,y),v in wrongtexts.items():
         if v =="":
            okcount+=1
         else:
             if errocounter[(x,y)]>0:
-                out_img = cv2.putText(out_img, wrongtexts[(x,y)], (50+150*x,200+100*y), cv2.FONT_HERSHEY_DUPLEX, 1.8, (30,30,200),2)
+                # out_img = cv2.putText(out_img, wrongtexts[(x,y)], (50+150*x,200+100*y), cv2.FONT_HERSHEY_DUPLEX, 1.8, (30,30,200),2)
                 errocounter[(x,y)]-=1
             if errocounter[(x,y)]<=0:
                 wrongtexts[(x,y)]=""
     if okcount>=4:
-        out_img = cv2.putText(out_img, "OK", (100,200), cv2.FONT_HERSHEY_DUPLEX, 3, (0,200,100),2)
+        out_img = cv2.putText(out_img, "OK", (100,200), cv2.FONT_HERSHEY_DUPLEX, 2, (0,200,100),2)
+    else:
+        wrongpoint=max(wrongtexts.values())
+        out_img = cv2.putText(out_img, wrongpoint, (100,200), cv2.FONT_HERSHEY_DUPLEX, 2, (0,0,255),2)
     return errocounter,wrongtexts,out_img
 
 #-------------------------------------------준영 함수
@@ -210,21 +250,96 @@ running = False
 real_start = False
 cam_start = 0
 #--------------------------준영 변수
-L_knee_mins=(70,105) # 왼쪽 무릎각도 최저 정상범위 설정
+L_knee_mins=(65,105) # 왼쪽 무릎각도 최저 정상범위 설정
 L_knee_maxs=(170,180)
-R_knee_mins=(70,105) # 오른쪽 무릎각도 최저 정상범위 설정
+R_knee_mins=(65,105) # 오른쪽 무릎각도 최저 정상범위 설정
 R_knee_maxs=(170,180)
-L_hip_mins=(85,120) # 왼쪽 옆구리각도 최저 정상범위 설정
+L_hip_mins=(80,120) # 왼쪽 옆구리각도 최저 정상범위 설정
 L_hip_maxs=(155,170) 
-R_hip_mins=(90,120) # 오른쪽 옆구리각도 최저 정상범위 설정
-R_hip_maxs=(165,175)
+R_hip_mins=(80,120) # 오른쪽 옆구리각도 최저 정상범위 설정
+R_hip_maxs=(155,175)
 
 form_class = uic.loadUiType('ui/test_ui_3.ui')[0]
- 
+setting_form = uic.loadUiType('ui/setting_ui.ui')[0]
+rest_form = uic.loadUiType('ui/rest_ui.ui')[0]
+
+class RestWindow(QDialog, rest_form):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowTitle('Rest Time')
+        self.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
+        self.setWindowFlag(QtCore.Qt.WindowSystemMenuHint, False)
+
+        self.duration = 5
+
+        print('REST WIndow start')
+
+        self.timer = QtCore.QTimer(self)
+        self.timer.setInterval(1000)
+        self.timer.timeout.connect(self.timeout)
+        self.timer.start()
+
+    def timeout(self):
+        global rest_flag
+        global running
+        global cam_start
+        global real_start
+        global R_shoulder
+        global R_pelvis
+        global R_knee
+        global R_elbow
+        global L_shoulder
+        global L_pelvis
+        global L_knee
+        global L_elbow
+
+        self.duration -= 1
+        self.lcdNumber.display(self.duration)
+
+        if self.duration == 0: #
+            rest_flag = False
+            real_start = False
+            R_shoulder = R_pelvis = R_knee = R_elbow = L_shoulder = L_pelvis = L_knee = L_elbow = False
+            running = True
+            
+            
+            myWindow.start_camera()
+
+            return self.close()
+
+    def show(self):
+        return super().exec_()
+
+class SettingWindow(QDialog, setting_form):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowTitle('Setting')
+
+        self.countText.setValidator(QtGui.QIntValidator())
+        self.setsText.setValidator(QtGui.QIntValidator())
+
+        self.countText.setText(str(CUSTOM_SQUAT_COUNT))
+        self.setsText.setText(str(CUSTOM_SQUAT_SET))
+
+        self.accepted.connect(self.my_accept)
+
+    def show(self):
+        return super().exec_()
+
+    def my_accept(self):
+        global CUSTOM_SQUAT_COUNT
+        global CUSTOM_SQUAT_SET
+
+        CUSTOM_SQUAT_COUNT = int(self.countText.text())
+        CUSTOM_SQUAT_SET = int(self.setsText.text()) 
+
 class MyWindow(QMainWindow, form_class):
     def __init__(self):
         super(MyWindow, self).__init__()
         self.running = False
+        self.stop = False
         self.setupUi(self)
         self.setWindowTitle('Do홈트')
 
@@ -233,8 +348,27 @@ class MyWindow(QMainWindow, form_class):
         self.startButton.clicked.connect(self.start_btn_clicked)
         self.stopButton.clicked.connect(self.stop_btn_clicked)
 
+        self.actiontest.triggered.connect(self.test)
+
+        self.timer = QtCore.QTimer(self)
+        self.timer.start()
+        self.timer.timeout.connect(self.rest)
+        self.first = True
+
+    def test(self):
+        win = SettingWindow()
+        win.show()
+
+    def rest(self):
+        global rest_flag
+
+        if rest_flag:
+            win = RestWindow()
+            win.show()
+
     def start_btn_clicked(self):
-        self.running = True
+        global running
+        running = True
         self.startButton.setEnabled(False)
         self.stopButton.setEnabled(True)
 
@@ -242,30 +376,39 @@ class MyWindow(QMainWindow, form_class):
         th_ref = threading.Thread(target=self.run_ref, args=(label_ref,))
         th_ref.start()
 
+        self.start_camera()
+
+    def start_camera(self):
         label = self.camLabel
         th = threading.Thread(target=self.run, args=(label,))
         th.start()
         print(self.running,"started..")
 
     def stop_btn_clicked(self):
-        self.running = False
-        self.startButton.setEnabled(True)
-        self.stopButton.setEnabled(False)
-        print(self.running,"stoped..")
-        QtCore.QCoreApplication.quit()
+        global running
+        self.stop = True
+        running = False
 
+        self.startButton.setEnabled(True) 
+        self.stopButton.setEnabled(False)
+        print(running,"stoped..")
+        QtCore.QCoreApplication.quit()
 
     def run_ref(self, myLabel):
         global real_start
         global video_player
         global cam_start
+        global running
         
-        startcount=-1
-        now_tape="l"
-        while (self.running):
-            if (cam_start!=0):
-                res, img = cap_test.read()
-                if res and startcount!=-1: #영상이 인식이 된다면
+        startcount = -1
+        now_tape = "l"
+        res=False #res가 뒤에 있어서 false 실행@@@@
+        while True:
+            if self.stop:
+                break
+            
+            if (cam_start!=0 and running):
+                if res: #영상이 인식이 된다면
                     img = cv2.resize(img, dsize=(0, 0), fx=0.8, fy=0.8, interpolation=cv2.INTER_LINEAR)
                     img = img[20:, :].copy()
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -279,22 +422,23 @@ class MyWindow(QMainWindow, form_class):
                 else: #영상이 끝났다면
                     if real_start==False:#사람이 인식되지 않았을 때
                         if startcount<=0:#두번 반복을 위한
-                            cap_test = cv2.VideoCapture("hedo_a.mp4")#두번째 예시 스쿼트 시작
+                            cap_test = cv2.VideoCapture("video/hedo_a.mp4")#두번째 예시 스쿼트 시작
                             startcount+=1
                         elif startcount>=1:
-                            cap_test = cv2.VideoCapture("heready.mp4")#대기 영상
-                            cam_start=2  #캠 인식 시작
+                            cap_test = cv2.VideoCapture("video/heready.mp4")#대기 영상
+                            now_tape = "l"
+                            cam_start = 2  #캠 인식 시작
                     if real_start==True:#사람이 인식 될 때
                         if now_tape=="f" and video_player==0:#비디오 재생 트리거가 켜져있고 이전 비디오가 f일때
-                            cap_test = cv2.VideoCapture("hedo_l.mp4")#비디오를 l로 재생
+                            cap_test = cv2.VideoCapture("video/hedo_l.mp4")#비디오를 l로 재생
                             now_tape="l"#현재 비디오 l
                         elif now_tape=="l" and video_player==1:
-                            cap_test = cv2.VideoCapture("hedo_f.mp4")
+                            cap_test = cv2.VideoCapture("video/hedo_f.mp4")
                             now_tape="f"
             else:
                 continue
-        
-       
+            res, img = cap_test.read() #영상을 처음 불러오기위해 뒤에서 실행@@@@
+                    
 
     def run(self, myLabel):
         global running
@@ -309,15 +453,18 @@ class MyWindow(QMainWindow, form_class):
         global L_elbow
         global cam_start
         #모델 열고 시작
-        time_count = 0
+        
+        
         with tf.Session() as sess:
             model_cfg, model_outputs = posenet.load_model(args.model, sess)  #model_outputs는 텐서 객체들의 리스트
             output_stride = model_cfg['output_stride']
-            if args.file is not None:
-                cap = cv2.VideoCapture(args.file)
-            else:
-                cap = cv2.VideoCapture(0) 
+
             
+
+            cap = cv2.VideoCapture(0)
+            if self.first: #두번째 실행됐을때는 실행되지 않도록
+                cam_start = 1
+                self.first = False
 
             peaple_count=1 #한명만 실행 지금 코드가 그대로 되어있음
 
@@ -335,10 +482,6 @@ class MyWindow(QMainWindow, form_class):
             R_knee_flag = 3
             L_hip_flag = 3
             R_hip_flag = 3
-            L_knee_errocounter = 0 #에러표시 유지값
-            R_knee_errocounter = 0 #에러표시 유지값
-            L_hip_errocounter = 0  #에러표시 유지값
-            R_hip_errocounter = 0  #에러표시 유지값
 
             wrongtexts={
                 (0,0):"",
@@ -353,18 +496,13 @@ class MyWindow(QMainWindow, form_class):
                 (1,1):0    
             }
             #-----------------------------------------------------연훈
-            ratio_arr = []
-            eye_arr = []
-            grad_check = []
             angles_arr = []
-  
-            #----------------------------------------------------은빈
-            ratio_arr = []
-            start = time.time()
-            frame_count = 0
-
+            time_count = 0
+            feet_arr = []
+            feet_range_arr = []
+            k_c = []
             
-            while self.running:
+            while running:
                 start_time = time.time()
                 if cam_start==2:
                     try:
@@ -388,12 +526,11 @@ class MyWindow(QMainWindow, form_class):
                         max_pose_detections=peaple_count,
                         min_pose_score=min_pose_score)
                     
-                    #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                      
                     #카메라가 사람을 못찾으면 초기화, 스쿼트 초기화
                     if pose_scores[0]<min_pose_score:
                         real_start = False
                         global squat_count
-                        squat_count = 0
+                        squat_count = 0             
                     
                     keypoint_coords *= output_scale
 
@@ -450,28 +587,14 @@ class MyWindow(QMainWindow, form_class):
                         for i,v in angle_dict.items():
                             angle_save[i]=int(angle_cal(k_c[v[0]],k_c[v[1]],k_c[v[2]]))
                         
-                        #------------------------------신은빈 stading pose 검출------------------------------
-                        # angle_save['R shoulder'] = int(angle_cal(k_c[angle_dict['R shoulder'][0]],k_c[angle_dict['R shoulder'][1]],k_c[angle_dict['R shoulder'][2]]))
-                        # angle_save['R elbow'] = int(angle_cal(k_c[angle_dict['R elbow'][0]],k_c[angle_dict['R elbow'][1]],k_c[angle_dict['R elbow'][2]]))
-                        # angle_save['R pelvis'] = int(angle_cal(k_c[angle_dict['R pelvis'][0]],k_c[angle_dict['R pelvis'][1]],k_c[angle_dict['R pelvis'][2]]))
-                        # angle_save['R knee'] = int(angle_cal(k_c[angle_dict['R knee'][0]],k_c[angle_dict['R knee'][1]],k_c[angle_dict['R knee'][2]]))
-                        # angle_save['L shoulder'] = int(angle_cal(k_c[angle_dict['L shoulder'][0]],k_c[angle_dict['L shoulder'][1]],k_c[angle_dict['L shoulder'][2]]))
-                        # angle_save['L elbow'] = int(angle_cal(k_c[angle_dict['L elbow'][0]],k_c[angle_dict['L elbow'][1]],k_c[angle_dict['L elbow'][2]]))
-                        # angle_save['L pelvis'] = int(angle_cal(k_c[angle_dict['L pelvis'][0]],k_c[angle_dict['L pelvis'][1]],k_c[angle_dict['L pelvis'][2]]))
-                        # angle_save['L knee'] = int(angle_cal(k_c[angle_dict['L knee'][0]],k_c[angle_dict['L knee'][1]],k_c[angle_dict['L knee'][2]]))
-
-                        #---------------------------------------------------- yeonhoon
-                        # 발목과 코의 위치 비율 구하기
-                        
-                        # ratio = (angle) / (left_ankle_y / eye_arr[0])
-                        # ratio_arr.append(ratio)
-
 
                     #================================================================
                     #정상 포즈 판별
                     end_time = time.time()
 
                     if real_start == False:
+                        if len(k_c)>10:
+                            feet_gap = check_feet_width(k_c[5][1], k_c[6][1], k_c[15][1],k_c[16][1])
                         if 'R shoulder' in angle_save:
                             if angle_save['R shoulder'] >=0 and angle_save['R shoulder']<=35:
                                 R_shoulder = True
@@ -547,6 +670,18 @@ class MyWindow(QMainWindow, form_class):
                             if time_count > 2:
                                 real_start = True
 
+                        if len(k_c)>10:
+                            if feet_gap < 0.4:
+                                time_count = 0
+                                out_img = cv2.putText(out_img,
+                                        'Legs Too Wide',
+                                        (50, 80), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,255), 1, cv2.LINE_AA) 
+                        
+                            if feet_gap > 1.5:
+                                time_count = 0
+                                out_img = cv2.putText(out_img,
+                                        'Legs Wider',
+                                        (50, 80), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,255), 1, cv2.LINE_AA) 
                         else:
                             time_count = 0
                             out_img = cv2.putText(out_img,
@@ -565,10 +700,17 @@ class MyWindow(QMainWindow, form_class):
                     
                     if real_start:
                         points = np.array([k_c[0],k_c[15],k_c[16]])
+
+                        feet_range = abs(k_c[15][1] - k_c[16][1])
+                        feet_range_arr.append(feet_range)
+
                         angle = triangle_points(points)
                         angles_arr.append(angle)
                         
-                            
+                        feet_gap = check_feet_width(k_c[5][1], k_c[6][1], k_c[15][1],k_c[16][1])
+                        feet_arr.append(feet_gap)
+                        knee_gap = check_knee_width(k_c[5][1], k_c[6][1], k_c[13][1],k_c[14][1])    
+
                         # 자세 판별
                         squat_knee_angle = 90
                         left_knee_hip_gap = abs(k_c[11][0] - k_c[13][0])
@@ -576,10 +718,13 @@ class MyWindow(QMainWindow, form_class):
 
                         global test
                         global color
-                        if len(angles_arr)>5:
+                        if feet_range > 1.5 * feet_range_arr[0] or feet_range < 0.5 * feet_range_arr[0]:
+                            angles_arr = []
+                            out_img = cv2.putText(out_img, "Adjust Legs", (350,50), cv2.FONT_HERSHEY_PLAIN, 4, color = (0,0,0), thickness=4)
+                        else:
                             squat_down(angle, angles_arr, 
                                     squat_knee_angle, angle_save["L knee"],  angle_save["R knee"], 
-                                    left_knee_hip_gap, right_knee_hip_gap)
+                                    left_knee_hip_gap, right_knee_hip_gap, knee_gap)
                             out_img=cv2.putText(out_img, test, (50,100), cv2.FONT_HERSHEY_DUPLEX, 2, color=color, thickness=2)
                             squat_rep = f"Rep: {squat_count}"
                             out_img = cv2.putText(out_img, squat_rep, (350,50), cv2.FONT_HERSHEY_PLAIN, 4, color = (0,0,0), thickness=4)
@@ -606,7 +751,7 @@ class MyWindow(QMainWindow, form_class):
                         #print("LN:{},{:.1f}\tRN:{},{:.1f}\tLH:{},{:.1f}\tRT:{},{:.1f}".format(L_knee_flag,angle_save['L knee'],R_knee_flag,angle_save['R knee'],L_hip_flag,angle_save['L hip'],R_hip_flag,angle_save['R hip']))
                 else:
                     _,out_img=cap.read()
-                    time.sleep(0.01)
+                    cv2.waitKey(1)
                     h,w,c = out_img.shape
                     if cam_start==0:
                         cam_start=1
@@ -614,7 +759,7 @@ class MyWindow(QMainWindow, form_class):
                 qImg = QtGui.QImage(out_img.data, w, h, w*c, QtGui.QImage.Format_RGB888)
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 myLabel.setPixmap(pixmap)
-                
+                QApplication.processEvents()
 
             cap.release()
             print("Thread end.")
