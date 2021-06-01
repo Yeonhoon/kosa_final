@@ -9,6 +9,7 @@ import time
 #-------------------------------------------import 구역
 import cv2
 from numpy.core.fromnumeric import mean
+from numpy.lib.function_base import median
 import pafy
 import numpy as np
 import pandas as pd
@@ -35,7 +36,7 @@ parser.add_argument('--scale_factor', type=float, default=0.7125)
 parser.add_argument('--file', type=str, default=None, help="Optionally use a video file instead of a live camera")
 args = parser.parse_args()
 
-#------------------------------------------ yeonhoon
+# ------------------------------------------------------------------------ yeonhoon
 
 color = (0,0,250)
 test = ""
@@ -65,67 +66,54 @@ def triangle_points(points):
 def check_knee_width(left_shoulder_x, right_shoulder_x, left_knee_x, right_knee_x):
     shoulder_width = abs(left_shoulder_x - right_shoulder_x)
     knee_width = abs(left_knee_x - right_knee_x)
-
     knee_gap = shoulder_width / knee_width
     return knee_gap
 
 def check_feet_width(left_shoulder_x, right_shoulder_x, left_ankle_x, right_ankle_x):
     shoulder_width = abs(left_shoulder_x - right_shoulder_x)
     ankle_width = abs(left_ankle_x - right_ankle_x)
-
     feet_gap = shoulder_width / ankle_width
     return feet_gap
 
-
 def squat_down(angle, angles_arr, squat_knee_angle, left_knee_angle, right_knee_angle, left_hip_gap, right_hip_gap, knee_gap):
-    global feet_flag
     global color
     global test
     global count_flag
     global squat_count
     global knee_flag
-    
-    # #시작 시 발폭이 너무 좁을때
-    # if feet_gap > 1.5:
-    #     test = "Legs Wider"
-    #     color = (0,255,255)
-    #     feet_flag = True
-    # elif feet_gap < 0.45:
-    #     test = "Legs Too Wide"
-    #     feet_flag = True
-    # else:
-    #     feet_flag = False
-
+    print(np.median(angles_arr[:5]))
     # 내려갔을 때
-    if mean(angles_arr[-10:-5]) < mean(angles_arr[-5:]) and angle - angles_arr[0]>=5 :
-        
-        if left_knee_angle > squat_knee_angle * 1.2 and right_knee_angle > squat_knee_angle * 1.2: 
-            test="Lower"
-            color = (0,0,250)
-        elif (squat_knee_angle <= left_knee_angle < squat_knee_angle * 1.2 or 
-                squat_knee_angle <= right_knee_angle < squat_knee_angle * 1.2) or \
-                (left_hip_gap < 20 or right_hip_gap < 20):
-            test="Good"
-            count_flag = True
-            color = (255,0,0)
+    if len(angles_arr)>10:
+        if mean(angles_arr[-10:-5]) < mean(angles_arr[-5:]) and angle > angles_arr[0] + 5 :
+            
+            if left_knee_angle > squat_knee_angle * 1.2 and right_knee_angle > squat_knee_angle * 1.2: 
+                test="Lower"
+                color = (0,0,250)
 
-        # 무릎이 너무 모이는 경우
-        if knee_gap >= 1.3:
-            knee_flag = True
+            elif (squat_knee_angle <= left_knee_angle < squat_knee_angle * 1.2 or 
+                    squat_knee_angle <= right_knee_angle < squat_knee_angle * 1.2) or \
+                    (left_hip_gap < 20 or right_hip_gap < 20):
+                test="Good"
+                count_flag = True
+                color = (255,0,0)
 
-        # 올라올 때
-    if mean(angles_arr[-10:-5]) > mean(angles_arr[-5:]):
-    # 내려갔다 올라와서 멈출 때
-        if angle <= angles_arr[0] * 0.90:
-            if count_flag:
-                count_flag = False
-                squat_count +=1
-                print(f"rep: {squat_count}")
+            # 무릎이 너무 모이는 경우
+            if knee_gap >= 1.2:
+                knee_flag = True
 
-            if knee_flag:
-                test = "Knee Wider"
-                color = (0,0,255)
-                knee_flag = False
+            # 올라올 때
+        if mean(angles_arr[-10:-5]) > mean(angles_arr[-5:]):
+        # 내려갔다 올라와서 멈출 때
+            if  np.median(angles_arr[:5]) <= angle <= np.median(angles_arr[:5]) * 1.2 :
+                if count_flag:
+                    count_flag = False
+                    squat_count +=1
+                    print(f"rep: {squat_count}")
+
+                if knee_flag:
+                    test = "Knee Wider"
+                    color = (0,0,255)
+                    knee_flag = False
     
 angle_list_dict={
     'R hip':[],
@@ -326,11 +314,10 @@ class MyWindow(QMainWindow, form_class):
                 (1,1):0    
             }
             #-----------------------------------------------------연훈
-            ratio_arr = []
-            eye_arr = []
-            grad_check = []
             angles_arr = []
-  
+            feet_arr = []
+            feet_range_arr = []
+            k_c = []
             #----------------------------------------------------은빈
             ratio_arr = []
             start = time.time()
@@ -433,8 +420,9 @@ class MyWindow(QMainWindow, form_class):
                 #================================================================
                 #정상 포즈 판별
                 end_time = time.time()
-
                 if real_start == False:
+                    if len(k_c)>10:
+                        feet_gap = check_feet_width(k_c[5][1], k_c[6][1], k_c[15][1],k_c[16][1])
                     if 'R shoulder' in angle_save:
                         if angle_save['R shoulder'] >=0 and angle_save['R shoulder']<=35:
                             R_shoulder = True
@@ -507,18 +495,16 @@ class MyWindow(QMainWindow, form_class):
                                 str(int(time_count)),
                                 (50, 80), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,0,0), 1, cv2.LINE_AA)
                         
-                        if time_count > 2:
+                        if time_count > 3:
                             real_start = True
-                    
-                    if len(k_c) > 1:
-                        if (k_c[5][1]- k_c[6][1]) / (k_c[15][1] - k_c[16][1]) < 0.4:
+                    if len(k_c)>10:
+                        if feet_gap < 0.4:
                             time_count = 0
                             out_img = cv2.putText(out_img,
                                     'Legs Too Wide',
                                     (50, 80), cv2.FONT_HERSHEY_DUPLEX, 1.5, (0,255,255), 1, cv2.LINE_AA) 
                     
-                    if len(k_c) > 1:
-                        if (k_c[5][1]- k_c[6][1]) / (k_c[15][1] - k_c[16][1]) > 1.3:
+                        if feet_gap > 1.5:
                             time_count = 0
                             out_img = cv2.putText(out_img,
                                     'Legs Wider',
@@ -542,11 +528,16 @@ class MyWindow(QMainWindow, form_class):
                 
                 if real_start:
                     points = np.array([k_c[0],k_c[15],k_c[16]])
+                    # temp = angle_between(k_c[15][1], k_c[15][0], k_c[0][1], k_c[0][0], k_c[16][1], k_c[16][0])
+                    feet_range = abs(k_c[15][1] - k_c[16][1])
+                    feet_range_arr.append(feet_range)
                     angle = triangle_points(points)
                     angles_arr.append(angle)
-                    
-                    knee_gap = check_knee_width(k_c[5][1], k_c[6][1], k_c[13][1],k_c[14][1])
+
                     feet_gap = check_feet_width(k_c[5][1], k_c[6][1], k_c[15][1],k_c[16][1])
+                    feet_arr.append(feet_gap)
+                    knee_gap = check_knee_width(k_c[5][1], k_c[6][1], k_c[13][1],k_c[14][1])
+
                     # 자세 판별
                     squat_knee_angle = 90
                     left_knee_hip_gap = abs(k_c[11][0] - k_c[13][0])
@@ -554,7 +545,10 @@ class MyWindow(QMainWindow, form_class):
 
                     global test
                     global color
-                    if len(angles_arr)>5:
+                    if feet_range > 1.5 * feet_range_arr[0] or feet_range < 0.5 * feet_range_arr[0]:
+                        angles_arr = []
+                        out_img = cv2.putText(out_img, "Adjust Legs", (350,50), cv2.FONT_HERSHEY_PLAIN, 4, color = (0,0,0), thickness=4)
+                    else:
                         squat_down(angle, angles_arr, 
                                 squat_knee_angle, angle_save["L knee"],  angle_save["R knee"], 
                                 left_knee_hip_gap, right_knee_hip_gap, knee_gap)
