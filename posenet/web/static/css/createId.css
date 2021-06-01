@@ -1,0 +1,133 @@
+@charset "UTF-8";
+
+			/*-------------타 이 틀--------------*/
+			
+			.txtinfo {
+				padding:20px;
+				width:800px;
+				height : 400px;
+				border: 2px solid #b7b7b7;
+				border-radius: 50px;
+				box-shadow: 5px 10px 18px #b7b7b7;
+			}
+			
+			table {
+				width : 700px;
+				
+				margin-left:auto;
+				margin-right:auto;
+				table-layout:fixed;
+			}
+			
+			table,th,td{
+				
+				border-collapse :collapse;
+				
+			}
+			
+			th {
+				text-align:left;
+				width : 120px;
+				height:30px;
+				
+			}
+			
+			td {
+				vertical-align:middle;
+				padding : 5px;
+
+			}
+
+			td.inputtd {
+				width:300px;
+			}
+			
+			td.checktd {
+				width:100px;
+			}
+			
+		
+			
+			#linetr {
+				border-top : 1px solid black;
+			}
+			
+			.txtinfo input[type="text"] {
+			  font-size:1.5em;
+			  padding:0.25em;
+			  box-sizing: border-box;
+			  width:100%;
+			} 
+					
+			
+			input[type="password"] {
+			  font-size:1.5em;
+			  padding:0.25em;
+			  box-sizing: border-box;
+			  width:100%;
+			}
+			
+				
+			input[type="button"] {
+			  font-size:1.2em;
+			  padding:0.25em;
+			  box-sizing: border-box;
+			  width:100%;
+			  cursor:pointer;
+			}
+			
+			input[type="tel"] {
+			  font-size:1.5em;
+			  padding:0.25em;
+			  box-sizing: border-box;
+			  width:100%;
+			}
+			
+			input[type="date"] {
+			  font-size:1.0em;
+			  padding:0.25em;
+			  box-sizing: border-box;
+			  width:100%;
+			}
+			
+			button[type="submit"] {
+			  font-size:1.2em;
+			  padding:0.25em;
+			  box-sizing: border-box;
+			  width:100%;
+			}
+	
+			#radiob {
+				width:100%;
+			}
+			
+			input,
+			input::-webkit-input-placeholder {
+				font-size: 16px;
+				line-height: 30px;
+			}
+			
+			#checkbtn {
+				background-color : #071338;
+				color : white;
+				border-radius : 8px;	
+				border : none;
+				outline:none;
+				cursor:pointer;
+			}
+		
+			
+			.btn{
+				background-color:#071338
+			}
+			.btn:hover{ 
+				background-color: #071338;
+			}
+			
+			.btn:active{
+				background-color: #071338;
+			}
+			
+			.btn:visited {
+				background-color: #071338;
+			} 	

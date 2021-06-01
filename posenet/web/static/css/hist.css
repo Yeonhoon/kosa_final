@@ -1,0 +1,15 @@
+.descript{
+    border: 1px solid black;
+    padding: 50px 200px 50px 50px;
+    margin-top: 20px;
+    margin-bottom: 120px;
+    border-radius: 20px;
+}
+
+div{
+    vertical-align:middle;
+}
+
+h1{
+    text-align:center;
+}

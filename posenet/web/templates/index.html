@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>두홈트 2021</title>
+  
+    <link href="{{url_for('static', filename='css/mdb.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='https://use.fontawesome.com/releases/v5.11.2/css/all.css')}}" rel="stylesheet">
+    
+</head>
+<body>
+  {% include 'header.html' %}
+  <!--Main layout-->
+  <main class="mt-5">
+    <div class="container">
+      <hr class="my-5" />
+
+      <div>
+        <a href="/signupform" class="btn btn-danger">회원가입</a>
+        <a href="/loginform" class="btn btn-success">로그인</a>
+
+      </div>
+      <!--Section: Content-->
+      <section class="text-center">
+        <h1 class="mb-5"><strong>Do Home Training<br/>(2021)</strong></h1>
+
+        <div class="row">
+          <div>
+            <div class="card">
+              <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+                <img width="600px" src="{{ url_for('static', filename='img/squat.jpg') }}" class="img-fluid" />
+                  <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+              </div>
+              <div class="card-body">
+                <p class="card-text">
+                  Do 홈트에 오신걸 환영합니다.<br/> 로그인을 하시고 내 운동 결과를 관찰해보세요.
+                </p>
+                <a href="/main" class="btn btn-primary">시작하기</a>
+                
+                
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+      <!--Section: Content-->
+
+      <hr class="my-5" />
+
+    </div>
+  </main>
+  <!--Main layout-->
+
+  <!--Footer-->
+  {% include 'survey/footer.html' %}
+  <!--Footer-->
+    <!-- MDB -->
+    <script type="text/javascript" src="js/mdb.min.js"></script>
+    <!-- Custom scripts -->
+    <script type="text/javascript" src="js/script.js"></script>
+</body>
+</html>

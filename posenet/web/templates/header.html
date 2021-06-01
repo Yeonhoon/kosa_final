@@ -1,0 +1,12 @@
+<div class="d-flex bd-highlight mb-3" style="border-bottom:2px solid #f2f2f2; height:60px;">
+    <div class="me-auto p-2 bd-highlight ml-5">
+        <a href="/">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo" width="50"
+            style="margin-left:20px;"></a>
+    </div>
+    <div class="p-2 bd-highlight">
+        {% if 'user' in session %}
+            <a href="/logout" class="btn btn-danger">로그아웃</a>
+        {% endif %}
+    </div>
+  </div>
