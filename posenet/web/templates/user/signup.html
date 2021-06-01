@@ -78,7 +78,7 @@
 					</tr>
 					<tr>
 						<th>이메일</th>
-						<td class="inputtd"><input id = "memail" placeholder="비밀번호를 입력해주세요" type = "password" name="mpw"onkeyup="doublepw(this.value)"/></td>
+						<td class="inputtd"><input id = "memail" placeholder="비밀번호를 입력해주세요" type = "text" name="mpw"onkeyup="doublepw(this.value)"/></td>
 						
 					</tr>
 					<tr>
@@ -95,7 +95,7 @@
 					</tr>
 					<tr>
 						<td colspan = "2" style="width : 700px;">
-							<button  class="btn btn-info btn-sm" id ="joinbtn" href="create" style="width:100%; height: 45px; align:center; font-size:1.2em; cursor:pointer" disabled="">가입하기</button>
+							<button  class="btn btn-info btn-sm" id ="joinbtn" href="create" style="width:100%; height: 45px; align: center; font-size:1.2em; cursor:pointer">가입하기</button>
 						</td>
 					</tr>
 				</table>
@@ -125,18 +125,18 @@
 							});
 						});		
 												
-						function doublepw(val) {
-							var pw1 = document.getElementById('mpw').value;
-							var pw2 = document.getElementById('mpw2').value;
+						// function doublepw(val) {
+						// 	var pw1 = document.getElementById('mpw').value;
+						// 	var pw2 = document.getElementById('mpw2').value;
 							
-							if(pw2 == pw1){
-								$("#sameMpw").html("비밀번호가 동일합니다");
-								flag2 = true;
-							} else {
-								$("#sameMpw").html("비밀번호가 틀립니다");
-								flag2 = false;
-							}
-						};
+						// 	if(pw2 == pw1){
+						// 		$("#sameMpw").html("비밀번호가 동일합니다");
+						// 		flag2 = true;
+						// 	} else {
+						// 		$("#sameMpw").html("비밀번호가 틀립니다");
+						// 		flag2 = false;
+						// 	}
+						// };
 				</script>
 				
 			</div>
