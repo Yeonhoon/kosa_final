@@ -4,6 +4,10 @@ import pandas as pd
 import user_mgmt as um
 import os
 from flask_login import LoginManager
+import plotly
+import plotly.express as px
+import json
+
 user = um.User()
 
 # from control import user_mgmt as um
@@ -73,6 +77,18 @@ def dash_page():
     id = x[0][0]
     print(id)
     return render_template('main.html', id=id)
+
+@app.route('/chart')
+def notdash():
+    con = um.conn
+    cursor = con.cursor()
+    query = """select * from squat_archive"""
+    df = pd.read_sql(query, con=con)
+    fig = px.bar(df, x='SET_COUNT', y='REP_COUNT', color='SQUAT_DATE',
+            template="simple_white") #barmode='group'
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    
+    return render_template('test.html', graphJSON=graphJSON)
 
 
 if __name__ == '__main__':
