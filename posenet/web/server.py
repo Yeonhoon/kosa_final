@@ -2,8 +2,21 @@
 from flask import Flask, jsonify, render_template, request, session, redirect
 import pandas as pd
 import user_mgmt as um
+import os
+from flask_login import LoginManager
+user = um.User()
+
 # from control import user_mgmt as um
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
+
+# Login Session
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return user.checkId(user_id)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -15,7 +28,6 @@ def signUpform():
 
 @app.route('/checkMid', methods=['POST'])
 def checkId():
-    user = um.User()
     data = request.form['check_id'] # 키로 받아야 함. 그래야 value를 사용 가능
     if user.checkId(data) is None:
         return jsonify(result='success')
@@ -24,12 +36,45 @@ def checkId():
 
 @app.route('/signup', methods=['POST'])
 def signUp():
-    user_id = request.form('mid')
-    user_email = request.form('mmeail')
-    user_pw = request.form('mpw')
-    user_name = request.form('mname')
-    um.signup(user_id, user_email, user_pw, user_name)
+    user_id = request.form['mid']
+    user_email = request.form['memail']
+    user_pw = request.form['mpw']
+    user_name = request.form['mname']
+    user.signUp(user_id, user_email, user_pw, user_name)
     return redirect('/')
+
+@app.route('/loginform', methods=['GET'])
+def loginForm():
+    return render_template('user/login.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    user_id = request.form['id']
+    user_pw = request.form['password']
+    result = user.login(user_id, user_pw)
+    print(result)
+    print("check: ", user.checkId(user_id)[0])
+    try:
+        print(user.checkId(user_id)[0])
+    except:
+        print('등록되지 않은 아이디')
+    else:
+        session['user_id'] = result[0]  
+        return redirect('/')
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    return redirect('/')
+
+@app.route('/main')
+def dash_page():
+    x = user.get_squat_data(session['user_id'])
+    id = x[0][0]
+    print(id)
+    return render_template('main.html', id=id)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+    

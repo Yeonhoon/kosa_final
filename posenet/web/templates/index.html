@@ -20,9 +20,14 @@
       <hr class="my-5" />
 
       <div>
+        {%if not session.user_id%}
         <a href="/signupform" class="btn btn-danger">회원가입</a>
         <a href="/loginform" class="btn btn-success">로그인</a>
+        {% endif %}
+        {% if session.user_id %}
+        <a href="/logout" class="btn btn-success">로그아웃</a>
 
+        {% endif %}
       </div>
       <!--Section: Content-->
       <section class="text-center">
@@ -39,8 +44,9 @@
                 <p class="card-text">
                   Do 홈트에 오신걸 환영합니다.<br/> 로그인을 하시고 내 운동 결과를 관찰해보세요.
                 </p>
+                {% if session.user_id%}
                 <a href="/main" class="btn btn-primary">시작하기</a>
-                
+                {% endif %}
                 
               </div>
             </div>

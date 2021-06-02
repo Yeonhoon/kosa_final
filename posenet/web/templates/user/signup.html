@@ -3,7 +3,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>PISA 2018 내 자녀 예측 서비스</title>
+    <title>두홈트 2021 회원가입</title>
   
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link href="{{url_for('static', filename='css/mdb.min.css')}}" rel="stylesheet">
@@ -28,24 +28,29 @@
 		#linetr {
 				border-top : 1px solid black;
 			}
-			
-			.txtinfo input[type="text"] {
-			  font-size:1.2em;
-			  padding:0.25em;
-			  box-sizing: border-box;
-			  width:100%;
-			} 
-					
-			
-			input[type="password"] {
-			  font-size:1.2em;
-			  padding:0.25em;
-			  box-sizing: border-box;
-			  width:100%;
-			}
+		
+		.txtinfo {
+			width: 800px;
+			height: 500px;
+			padding: 20px;
+		}
+
+		.txtinfo input[type="text"] {
+			font-size:1.2em;
+			padding:0.25em;
+			box-sizing: border-box;
+			width:100%;
+		} 
+		
+		input[type="password"] {
+			font-size:1.2em;
+			padding:0.25em;
+			box-sizing: border-box;
+			width:100%;
+		}
 			
 	</style>
-	<script type="text/javascript">
+	<!-- <script type="text/javascript">
 		let change = true;
 		
 		const signup_check = (loginbtn) => {
@@ -59,13 +64,12 @@
 		const start = () => {
 			setInterval(signup_check, 250, document.getElementById('joinbtn'));
 		}
-	</script>
+	</script> -->
   </head>
 <body onload="start()">
-    {% include 'header.html' %}
+    {% include 'header.html' %} <!-- import header -->
 	<div style="text-align:center; width : 900px; height:500px; margin:100px auto">
 		<div class = "txtinfo"> 
-		
 			<form method="post" name="joinform" action="/signup" >
 				<table style="border-spacing:30px; border-collapse:separate;">
 					<tr style="">
@@ -78,19 +82,26 @@
 					</tr>
 					<tr>
 						<th>이메일</th>
-						<td class="inputtd"><input id = "memail" placeholder="비밀번호를 입력해주세요" type = "text" name="mpw"onkeyup="doublepw(this.value)"/></td>
+						<td class="inputtd">
+							<input id = "memail" placeholder="E-mail" type = "text" name="memail" onkeyup="doublepw(this.value)"/>
+						</td>
 						
 					</tr>
 					<tr>
 						<th>비밀번호</th>
-						<td class="inputtd"><input id = "mpw" placeholder="비밀번호를 한번 더 입력해주세요" type = "password" name="mpw2" onkeyup="doublepw(this.value)"/>
+						<td class="inputtd"><input id = "mpw" placeholder="PW" type = "password" name="mpw" onkeyup="doublepw(this.value)"/>
+						</td>
+					</tr>
+					<tr>
+						<th>비밀번호 확인</th>
+						<td class="inputtd"><input id = "mpw2" placeholder="Check PW" type = "password" name="mpw2" onkeyup="doublepw(this.value)"/>
 						</td>
 						<td><small id="sameMpw" class="form-text text-danger" style="font-size:10px"></small></td>
 						
 					</tr>
 					<tr>
 						<th>이름</th>
-						<td class="inputtd"><input id = "mname" placeholder="이름을 입력해주세요" type = "text" name="mname"/></td>
+						<td class="inputtd"><input id = "mname" placeholder="Your Name" type = "text" name="mname"/></td>
 						
 					</tr>
 					<tr>
@@ -125,21 +136,21 @@
 							});
 						});		
 												
-						// function doublepw(val) {
-						// 	var pw1 = document.getElementById('mpw').value;
-						// 	var pw2 = document.getElementById('mpw2').value;
+						function doublepw(val) {
+							var pw1 = document.getElementById('mpw').value;
+							var pw2 = document.getElementById('mpw2').value;
 							
-						// 	if(pw2 == pw1){
-						// 		$("#sameMpw").html("비밀번호가 동일합니다");
-						// 		flag2 = true;
-						// 	} else {
-						// 		$("#sameMpw").html("비밀번호가 틀립니다");
-						// 		flag2 = false;
-						// 	}
-						// };
+							if(pw2 == pw1){
+								$("#sameMpw").html("비밀번호가 동일합니다");
+								flag2 = true;
+							} else {
+								$("#sameMpw").html("비밀번호가 틀립니다");
+								flag2 = false;
+							}
+						};
 				</script>
 				
 			</div>
 	</div>
-    {% include 'survey/footer.html' %}
+		{% include 'survey/footer.html' %} <!-- import footer -->
 </body>

@@ -3,7 +3,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>PISA 2018 내 자녀 예측 서비스</title>
+    <title>두홈트 2021</title>
   
     <link href="{{url_for('static', filename='css/mdb.min.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
@@ -28,22 +28,46 @@
     <div style="height: 500px">
         <form  action="/login" method="post" style="width: 500px; margin-top:200px;">
             <div class="row mb-3">
-              <label for="id" class="col-sm-2 col-form-label">아이디</label>
+              <label for="id" class="col-sm-2 col-form-label">ID</label>
               <div class="col-sm-10">
                 <input type="text" class="form-control" id="id" name="id">
               </div>
             </div>
             <div class="row mb-3">
-              <label for="password" class="col-sm-2 col-form-label">비밀번호</label>
+              <label for="password" class="col-sm-2 col-form-label">PW</label>
               <div class="col-sm-10">
                 <input type="password" class="form-control" id="password" name="password">
               </div>
             </div>
-            <button type="submit" class="btn btn-primary">로그인</button>
-            <hr/>
-            <a href="/signup" class="btn btn-primary">회원가입</a>
+            <br/>
+            <center>
+              <button type="submit" class="btn btn-primary" id='loginBtn'>로그인</button>
+              <a href="/signupform" class="btn btn-primary">회원가입</a>
+            </center>
           </form>
           
     </div>
     {% include 'survey/footer.html' %}
 </body>
+<script>
+$('#loginBtn').click(function(){
+							const mid = $("#id").val();
+							$.ajax({
+								url:"checkMid",
+								method:"POST",
+								data: {
+									'check_id':mid
+								},
+								success : function(data) {
+									if(data.result === "success") {
+										flag1 = true;
+										alert("로그인 성공.")
+									} else if(data.result ==="failed") {
+										flag1 = false;
+										alert("사용 불가능한 아이디 입니다.");
+									}
+								}
+							});
+						});
+
+</script>
