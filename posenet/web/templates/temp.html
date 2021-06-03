@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DashBoard</title>
+    <script src='https://cdn.plot.ly/plotly-1.58.4.min.js'></script>
+</head>
+<body>
+    <div class="col-md-12 col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Unique Visitor</h5>
+            </div>
+            <div class="card-body pl-0 pb-0">
+                <div id="unique-visitor-chart"></div>
+            </div>
+        </div>
+    </div>
+    <div id='myDiv'></div>
+
+    <script type="text/javascript">
+        var graphs = {{ graphJSON | safe }};
+        Plotly.plot('chart',graphs,{});
+    </script>
+
+    <!-- <script src="{{url_for('static', filename='js/test.js')}}"></script> -->
+    <script src="/static/js/plugins/apexcharts.min.js"></script>
+</body>
+</html>

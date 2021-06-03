@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% include 'header.html' %}
+    <table style="border-spacing:30px; border-collapse:separate;">
+        <tr style="">
+            <th>아이디</th>
+            <td></td>
+            <td class="inputtd"><input id = "mid" placeholder="6자리 이상의 영문 혹은 영문과 숫자를 조합" type = "text" name="mid" /></td>
+            
+            <td class="checktd">
+                <input type="button" id ="midcheckbtn" value="중복확인" onclick='console.log("확인")'/>
+            </td>
+        </tr>
+        <tr>
+            <th>이메일</th>
+            <td class="inputtd">
+                <input id = "memail" placeholder="E-mail" type = "text" name="memail" onkeyup="doublepw(this.value)"/>
+            </td>
+            
+        </tr>
+        <tr>
+            <th>비밀번호</th>
+            <td class="inputtd"><input id = "mpw" placeholder="PW" type = "password" name="mpw" onkeyup="doublepw(this.value)"/>
+            </td>
+        </tr>
+        <tr>
+            <th>비밀번호 확인</th>
+            <td class="inputtd"><input id = "mpw2" placeholder="Check PW" type = "password" name="mpw2" onkeyup="doublepw(this.value)"/>
+            </td>
+            <td><small id="sameMpw" class="form-text text-danger" style="font-size:10px"></small></td>
+            
+        </tr>
+        <tr>
+            <th>이름</th>
+            <td class="inputtd"><input id = "mname" placeholder="Your Name" type = "text" name="mname"/></td>
+            
+        </tr>
+        <tr>
+            <td colspan = "2" style="width : 700px;">
+                <button  class="btn btn-info btn-sm" id ="joinbtn" href="create" style="width:100%; height: 45px; align: center; font-size:1.2em; cursor:pointer">가입하기</button>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

@@ -56,8 +56,6 @@ def login():
     user_id = request.form['id']
     user_pw = request.form['password']
     result = user.login(user_id, user_pw)
-    print(result)
-    print("check: ", user.checkId(user_id)[0])
     try:
         print(user.checkId(user_id)[0])
     except:
@@ -74,21 +72,32 @@ def logout():
 @app.route('/main')
 def dash_page():
     x = user.get_squat_data(session['user_id'])
-    id = x[0][0]
-    print(id)
+    print(x)
+    # id = x[0][0]
+    # sets = x[0][1]
+    # reps = x[0][2]
+    # dates = x[0][3]
+
+
     return render_template('main.html', id=id)
 
-@app.route('/chart')
-def notdash():
-    con = um.conn
-    cursor = con.cursor()
-    query = """select * from squat_archive"""
-    df = pd.read_sql(query, con=con)
-    fig = px.bar(df, x='SET_COUNT', y='REP_COUNT', color='SQUAT_DATE',
-            template="simple_white") #barmode='group'
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    
-    return render_template('test.html', graphJSON=graphJSON)
+# @app.route('/mypage')
+# def my_page():
+#     return render_template('mypage.html')
+
+
+# @app.route('/main')
+# def notdash():
+#     con = um.conn
+#     cursor = con.cursor()
+#     query = """select user_id, set_count, rep_count, squat_date from squat_archive where user_id=:user_id"""
+#     df = pd.read_sql(query, con=con)
+#     print("df: ", df)
+#     fig = px.bar(df, x='SET_COUNT', y='REP_COUNT', color='SQUAT_DATE',
+#             template="simple_white") #barmode='group'
+#     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+#     # print(graphJSON)
+#     return render_template('test.html', graphJSON=graphJSON)
 
 
 if __name__ == '__main__':

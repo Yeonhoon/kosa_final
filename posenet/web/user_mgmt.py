@@ -41,4 +41,5 @@ class User:
         cursor.execute(sql, {"user_id":user_id})
         x = cursor.fetchall()
         return x
+    
         
