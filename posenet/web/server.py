@@ -1,4 +1,5 @@
 # coding: utf-8
+from re import template
 from flask import Flask, jsonify, render_template, request, session, redirect
 import pandas as pd
 import user_mgmt as um
@@ -71,20 +72,26 @@ def logout():
 
 @app.route('/main')
 def dash_page():
-    x = user.get_squat_data(session['user_id'])
-    print(x)
-    # id = x[0][0]
-    # sets = x[0][1]
-    # reps = x[0][2]
-    # dates = x[0][3]
-
-
-    return render_template('main.html', id=id)
+    conn = um.conn
+    # 'select * from squat_archive' + " where user_id= '"
+    sql = """select TO_CHAR(squat_date, 'YYYY-MM-DD') as dates, user_id, sum(set_count * rep_count) as count from squat_archive 
+            where user_id= """ + "'" +session['user_id'] + "'" + "group by TO_CHAR(squat_date, 'YYYY-MM-DD'), user_id"
+    df = pd.read_sql(sql, con=conn)
+    print(df)
+    # df['TOTAL'] = df['SET_COUNT'] * df['REP_COUNT']
+    fig = px.bar(df, x='DATES', y= 'COUNT', template='simple_white')
+    fig.update_xaxes(type="date")
+    fig.update_layout(
+            autosize=True,
+            font_family = "Droid Sans",
+            width = 67, height = 33
+            )
+    graphJSON  = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template('main.html', id = session['user_id'], graphJSON=graphJSON )
 
 # @app.route('/mypage')
 # def my_page():
 #     return render_template('mypage.html')
-
 
 # @app.route('/main')
 # def notdash():
