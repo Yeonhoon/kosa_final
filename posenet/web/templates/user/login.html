@@ -1,32 +1,93 @@
 <!DOCTYPE html>
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>두홈트 2021</title>
-  
-    <link href="{{url_for('static', filename='css/mdb.min.css')}}" rel="stylesheet">
-    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Do HOME-T Login</title>
+
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Custom fonts for this template-->
+    <link href="{{url_for('static',filename='vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet" type="text/css">
     <link
-      href="{{url_for('static', filename='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap')}}"
-      rel="stylesheet">
-    <link href="{{url_for('static', filename='https://use.fontawesome.com/releases/v5.11.2/css/all.css')}}"
-      rel="stylesheet">
-    <link href="{{url_for('static', filename='css/custom.css')}}" rel="stylesheet">
-   
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-  </head>
-<body>
-    {% include 'header.html' %}
-    <div style="height: 500px">
-      <form  action="/login" method="post" style="width: 500px; margin-top:200px;">
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="{{url_for('static', filename='css/sb-admin-2.min.css')}}" rel="stylesheet">
+
+</head>
+<body class="bg-gradient-secondary">
+    <!-- {% include 'header.html' %} -->
+    <div class="container">
+
+      <!-- Outer Row -->
+      <div class="row justify-content-center">
+
+          <div class="col-xl-10 col-lg-12 col-md-9">
+
+              <div class="card o-hidden border-0 shadow-lg my-5">
+                  <div class="card-body p-0">
+                      <!-- Nested Row within Card Body -->
+                      <div class="row">
+                          <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                          <div class="col-lg-6">
+                              <div class="p-5">
+                                  <div class="text-center">
+                                      <h1 class="h4 text-gray-900 mb-4">Welcome!</h1>
+                                  </div>
+                                  <form onsubmit="login()" method="post" >
+                                      <div class="form-group">
+                                          <input type="text" class="form-control form-control-user"
+                                              id="id" aria-describedby="emailHelp" name='id'
+                                              placeholder="Enter ID">
+                                      </div>
+                                      <div class="form-group">
+                                          <input type="password" class="form-control form-control-user"
+                                              id="password" name ='password' placeholder="Password">
+                                      </div>
+                                      <div class="form-group">
+                                          <div class="custom-control custom-checkbox small">
+                                              <input type="checkbox" class="custom-control-input" id="customCheck">
+                                              <label class="custom-control-label" for="customCheck">Remember
+                                                  Me</label>
+                                          </div>
+                                      </div>
+                                      <button type="submit" class="btn btn-primary btn-user btn-block" id='loginBtn'>Login</button>
+                                      <hr>
+                                      <!-- <a href="index.html" class="btn btn-google btn-user btn-block">
+                                          <i class="fab fa-google fa-fw"></i> Login with Google
+                                      </a>
+                                      <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                                          <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                                      </a> -->
+                                  </form>
+                                  <div class="text-center">
+                                      <a class="small" href="forgot-password.html">Forgot Password?</a>
+                                  </div>
+                                  <div class="text-center">
+                                      <a class="small" href="/signupform">Create an Account!</a>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+          </div>
+
+      </div>
+
+    <!-- <div style="height: 500px">
+      <center>
+        <h2>Login</h2>
+      </center>
+      <form onsubmit="login()" method="post" style="width: 500px; margin-top:200px;">
           <div class="row mb-3">
             <label for="id" class="col-sm-2 col-form-label">ID</label>
             <div class="col-sm-10">
@@ -44,30 +105,40 @@
             <button type="submit" class="btn btn-primary" id='loginBtn'>로그인</button>
             <a href="/signupform" class="btn btn-primary">회원가입</a>
           </center>
-      </form>
+      </form> -->
           
-    </div>
-    {% include 'survey/footer.html' %}
+    <!-- </div> -->
+    <!-- {% include 'survey/footer.html' %} -->
 </body>
 <script>
-$('#loginBtn').click(function(){
-							const mid = $("#id").val();
-							$.ajax({
-								url:"checkMid",
-								method:"POST",
-								data: {
-									'check_id':mid
-								},
-								success : function(data) {
-									if(data.result === "success") {
-										flag1 = true;
-										alert("로그인 성공.")
-									} else if(data.result ==="failed") {
-										flag1 = false;
-										alert("사용 불가능한 아이디 입니다.");
-									}
-								}
-							});
-						});
+function login(){
+      event.preventDefault();
+      const mid = $("#id").val();
+      const mpw = $('#password').val();
+      $.ajax({
+        url:"/login",
+        method:"POST",
+        data: {
+          'check_id':mid,
+          'check_pw':mpw
+        },
+        success : function(data) {
+          if(data.result === "ID_Fail") {
+            flag1 = true;
+            alert("가입되지 않은 아이디!");
+          } 
+          else if(data.result ==="PW_Fail") {
+            flag1 = false;
+            alert("비밀번호 확인!")
+          }
+          else{
+            location.href="/"
+          }
+          // else {
+          //   location.href="/"
+          // }
+        }
+      });
+}
 
 </script>

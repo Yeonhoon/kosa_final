@@ -1,5 +1,5 @@
 # coding: utf-8
-import re
+from re import template
 from flask import Flask, jsonify, render_template, request, session, redirect
 import pandas as pd
 import user_mgmt as um
@@ -31,13 +31,6 @@ def index():
 def signUpform():
     return render_template('user/signup.html')
 
-@app.route('/checkMid', methods=['POST'])
-def checkId():
-    data = request.form['check_id'] # 키로 받아야 함. 그래야 value를 사용 가능
-    if user.checkId(data) is None:
-        return jsonify(result='success')
-    else:
-        return jsonify(result='failed')
 
 @app.route('/signup', methods=['POST'])
 def signUp():
@@ -48,22 +41,34 @@ def signUp():
     user.signUp(user_id, user_email, user_pw, user_name)
     return redirect('/')
 
+@app.route('/checkMid', methods=['POST'])
+def checkId():
+    data = request.form['check_id'] # 키로 받아야 함. 그래야 value를 사용 가능
+    if user.checkId(data) is None:
+        return jsonify(result='success')
+    else:
+        return jsonify(result='failed')
+
 @app.route('/loginform', methods=['GET'])
 def loginForm():
     return render_template('user/login.html')
 
 @app.route('/login', methods=['POST'])
 def login():
-    user_id = request.form['id']
-    user_pw = request.form['password']
+    # ajax를 통해 검사를 받아야 하므로 ajax에서 선언한 check_id와 check_pw로 받아야함
+    user_id = request.form['check_id']
+    user_pw = request.form['check_pw']
     result = user.login(user_id, user_pw)
+    if user.checkId(user_id) is None:
+        return jsonify(result='ID_Fail')
+
+    if user.checkPw(user_id)[0] != user_pw:
+        return jsonify(result='PW_Fail') 
     try:
-        print(user.checkId(user_id)[0])
-    except:
-        print('등록되지 않은 아이디')
-    else:
         session['user_id'] = result[0]  
-        return redirect('/')
+    except Exception as e:
+        print(e.args, "아이디 혹은 비밀번호를 확인해주세요")
+    return redirect('/')
 
 @app.route('/logout')
 def logout():
@@ -79,6 +84,18 @@ def dash_page():
     # reps = x[0][2]
     # dates = x[0][3]
     con = um.conn
+    sql = """select TO_CHAR(squat_date, 'YYYY-MM-DD') as dates, user_id, sum(set_count * rep_count) as volume from squat_archive 
+            where user_id= """ + "'" +session['user_id'] + "'" + "group by TO_CHAR(squat_date, 'YYYY-MM-DD'), user_id"
+    df = pd.read_sql(sql, con=conn)
+    fig = px.bar(df, x='DATES', y= 'VOLUME', template='plotly_white', color="VOLUME", 
+                    color_continuous_scale='Teal')
+    fig.update_xaxes(type="date")
+    fig.update_layout(
+            font_family = "Droid Sans",
+            height = 330
+            )
+    graphJSON  = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
     knee_query = """select user_id, set_count, rep_count, squat_date from squat_archive where user_id = '{}'""".format(session['user_id'])
     knee_df = pd.read_sql(knee_query, con=con)
     # print("df: ", df)
@@ -86,7 +103,7 @@ def dash_page():
     knee_graphJSON = json.dumps(knee_fig, cls=plotly.utils.PlotlyJSONEncoder)
     
     #정해진 달 (6월) 스쿼트한 날 찾기
-    return render_template('main.html', id=id,test_graphJSON=knee_graphJSON)
+    return render_template('main.html', id = session['user_id'], graphJSON=graphJSON,test_graphJSON=knee_graphJSON)
 
 # @app.route('/mypage')
 # def my_page():
@@ -128,6 +145,7 @@ def kneeAngleGraph():
     knee_fig = px.line(knee_df, x='FRAME', y='ANGLES', template="simple_white") #barmode='group'
     knee_graphJSON = json.dumps(knee_fig, cls=plotly.utils.PlotlyJSONEncoder)
     return knee_graphJSON
+
 
 if __name__ == '__main__':
     app.run(debug=True)

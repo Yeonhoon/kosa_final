@@ -25,7 +25,15 @@ class User:
             """
         cursor.execute(sql, {"user_id":user_id})
         result = cursor.fetchone()
+        return result
 
+    def checkPw(self, user_id):
+        cursor = conn.cursor()
+        sql = """
+            select user_pw from user_info where user_id=:user_id
+        """
+        cursor.execute(sql, {"user_id":user_id})
+        result = cursor.fetchone()
         return result
 
     def login(self, user_id, user_pw):
