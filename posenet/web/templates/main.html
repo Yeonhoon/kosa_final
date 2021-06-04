@@ -345,12 +345,12 @@
                     <div class="row">
 
                         <!-- Area Chart -->
-                        <div class="col-lg-9">
+                        <div class="col-lg-8">
                             <div class="card shadow mb-4">
                                 <!-- Card Header - Dropdown -->
                                 <div
                                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Calendar</h6>
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -367,8 +367,11 @@
                                     </div>
                                 </div>
                                 <!-- Card Body -->
-                                <div class="card-body container-fluid">
-                                    <div class="row">
+                                <div class="card-body">
+                                    <div>
+                                        <div id="calendarForm" style="text-align:center"></div>
+                                    </div>
+                                <!--<div class="row">
                                         <div class="col-lg-5">
                                             <div id="calendarForm"></div>
                                         </div>
@@ -382,10 +385,48 @@
                                                 </html>
                                             </div>
                                         </div>
-                                    <div>
+                                    <div>-->
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-lg-4">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div
+                                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                        aria-labelledby="dropdownMenuLink">
+                                            <div class="dropdown-header">Dropdown Header:</div>
+                                            <a class="dropdown-item" href="#">Action</a>
+                                            <a class="dropdown-item" href="#">Another action</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#">Something else here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <table class="table test"> 
+                                        <tr> 
+                                            <th>운동 시각</th> 
+                                            <th>세트</th> 
+                                            <th>횟수</th> 
+                                        </tr> 
+                                        <tbody id="table1"> 
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
                     
                     </div>
                     <!-- Jun's part -->
@@ -516,21 +557,24 @@
                 cnt++;
             }
             //날짜 채우기
-            var days;
+            var days_dict;
             $.ajax({
                 url:"squartdays",
                 method:"post",
                 data:{year,month},//user값 받는거 만들어야함
                 async: false,
                 success:function(data){
-                    days=data["result"].split(',');
+                    days_dict = data['result']
+                    //for(key in days_dict) {
+                    //    days_dict[key]=days_dict[key].split(',')
+                    //}
                 }
             });
             
             for (i = 1; i <= thisLastDay.getDate(); i++) {
                 if (cnt % 7 == 0) { tag += "<tr>"; }
-                if (days.includes(String(i))){ 
-                    tag += "<td>" + i + "<div>★</div>" +"</td>";
+                if (days_dict.hasOwnProperty(String(i))){ 
+                    tag += "<td>" + i + "<div>" + days_dict[i] + "</div>" +"</td>";
                     cnt++;
                 }
                 else {
@@ -546,15 +590,15 @@
 
             function assembly(year, month) {
                 var calendar_html_code =
-                    "<table class='custom_calendar_table'>" +
+                    "<table class='custom_calendar_table' style='display: inline-block'>" +
                     "<colgroup>" +
-                    "<col style='width:81px'/>" +
-                    "<col style='width:81px'/>" +
-                    "<col style='width:81px'/>" +
-                    "<col style='width:81px'/>" +
-                    "<col style='width:81px'/>" +
-                    "<col style='width:81px'/>" +
-                    "<col style='width:81px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
                     "</colgroup>" +
                     "<thead class='cal_date'>" +
                     "<th><button type='button' class='prev'><</button></th>" +
@@ -585,25 +629,33 @@
                 $(".custom_calendar_table").on("click", "td", function () {
                     $(".custom_calendar_table .select_day").removeClass("select_day");
                     $(this).removeClass("select_day").addClass("select_day");
-                    var date=$(this).text()
-                    kneeAngleGraphMaker(year,month,date)
+                    var date=$(this).html()
+                    date=date.split('<div>')[0]
+                    TableMaker(year,month,date)
                 });
             }
         }
-        function kneeAngleGraphMaker(year,month,date){//
+        
+        function TableMaker(year,month,date){//무릎각도 그래프 제거
             $.ajax({
-                url:"kneeAngleGraph",
+                url:"tableMaker",
                 method:"post",
                 data:{year,month,date},//user값 받는거 만들어야함
                 success:function(data){
-                    console.log("비웠다")
-                    var graphs = JSON.parse(data)
-                    Plotly.react('KneeAngleChart',graphs,{})
+                    time_data=data['result']
+                    var table = $('#table1')
+                    table.empty()
+                    for (var i=0; i < time_data.length; i++) { 
+                        var row = `<tr> <td>${time_data[i].TIME}</td> <td>${time_data[i].SET_COUNT}</td> <td>${time_data[i].REP_COUNT}</td> </tr>` 
+                        table.append(row); 
+                    }
+                    
                 }
             }); 
         }
+
     </script>
-    <!-- calendar js -->
+    <!-- calendar js end -->
 
     <!-- Bootstrap core JavaScript-->
     <script src="{{url_for('static', filename = 'vendor/jquery/jquery.min.js')}}"></script>
