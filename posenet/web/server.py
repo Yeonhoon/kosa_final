@@ -1,5 +1,5 @@
 # coding: utf-8
-from re import template
+from re import T, template
 from flask import Flask, jsonify, render_template, request, session, redirect
 import pandas as pd
 import user_mgmt as um
@@ -77,10 +77,16 @@ def logout():
 
 @app.route('/main')
 def dash_page():
-    conn = um.conn
+    x = user.get_squat_data(session['user_id'])
+    print(x)
+    # id = x[0][0]
+    # sets = x[0][1]
+    # reps = x[0][2]
+    # dates = x[0][3]
+    con = um.conn
     sql = """select TO_CHAR(squat_date, 'YYYY-MM-DD') as dates, user_id, sum(set_count * rep_count) as volume from squat_archive 
             where user_id= """ + "'" +session['user_id'] + "'" + "group by TO_CHAR(squat_date, 'YYYY-MM-DD'), user_id"
-    df = pd.read_sql(sql, con=conn)
+    df = pd.read_sql(sql, con=con)
     fig = px.bar(df, x='DATES', y= 'VOLUME', template='plotly_white', color="VOLUME", 
                     color_continuous_scale='Teal')
     fig.update_xaxes(type="date")
@@ -89,8 +95,60 @@ def dash_page():
             height = 330
             )
     graphJSON  = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template('main.html', id = session['user_id'], graphJSON=graphJSON )
+
+    # knee_query = """select user_id, set_count, rep_count, squat_date from squat_archive where user_id = '{}'""".format(session['user_id'])
+    # knee_df = pd.read_sql(knee_query, con=con)
+    # print("df: ", df)
+    # knee_fig = px.line(knee_df, x='SQUAT_DATE', y='REP_COUNT', template="simple_white") #barmode='group'
+    # knee_graphJSON = json.dumps(knee_fig, cls=plotly.utils.PlotlyJSONEncoder)
+    
+    #정해진 달 (6월) 스쿼트한 날 찾기
+    return render_template('main.html', id = session['user_id'], graphJSON=graphJSON)
+
+# @app.route('/mypage')
+# def my_page():
+#     return render_template('mypage.html')
+
+
+# @app.route('/test')
+# def notdash():
+#     return render_template('test.html')
+
+@app.route('/squartdays',methods=['POST'])
+def squartdays():
+    year = request.form['year']
+    month = request.form['month']
+    con = um.conn
+    days_query="""select to_char(squat_date,'DD') as day,set_count,rep_count FROM squat_archive
+                where user_id='{}' and to_char(squat_date,'YYYY')='{}' and to_char(squat_date,'MM')='{:02d}'
+                """.format(session['user_id'],year,int(month))
+    days_df = pd.read_sql(days_query, con=con)
+    days_newdict={}
+    for _, r in days_df.iterrows():
+        if days_newdict.get(int(r["DAY"])):
+            days_newdict[int(r["DAY"])]="★"
+        else:
+            days_newdict[int(r["DAY"])]="{}:{}".format(r["SET_COUNT"],r["REP_COUNT"])
+            
+
+    return jsonify(result=days_newdict)
+
+@app.route('/tableMaker',methods=['POST'])
+def kneeAngleGraph():
+    year = request.form['year']
+    month = request.form['month']
+    date = request.form['date']
+    con = um.conn
+    time_query = """select to_char(squat_date,'HH24:MI:SS') as time,set_count,rep_count FROM squat_archive
+                where user_id='{}' and to_char(squat_date,'YYYY')='{}' and to_char(squat_date,'MM')='{:02d}' and to_char(squat_date,'DD')='{:02d}'
+    """.format(session['user_id'],year,int(month),int(date))
+    time_df = pd.read_sql(time_query, con=con)
+    time_dict=time_df.to_dict('records')
+    return jsonify(result=time_dict)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
     

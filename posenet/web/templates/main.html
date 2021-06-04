@@ -20,6 +20,12 @@
     <!-- Custom styles for this template-->
     <link href="{{url_for('static', filename='css/sb-admin-2.min.css')}}" rel="stylesheet">
 
+    <!-- calendar css -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <link href="{{url_for('static', filename='css/calendar.css')}}" rel="stylesheet">
+
+
 </head>
 
 <body id="page-top">
@@ -334,6 +340,97 @@
                     </div>
                     
 
+                    <!-- Jun's part -->
+                    
+                    <div class="row">
+
+                        <!-- Area Chart -->
+                        <div class="col-lg-8">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Calendar</h6>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                            aria-labelledby="dropdownMenuLink">
+                                            <div class="dropdown-header">Dropdown Header:</div>
+                                            <a class="dropdown-item" href="#">Action</a>
+                                            <a class="dropdown-item" href="#">Another action</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#">Something else here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div>
+                                        <div id="calendarForm" style="text-align:center"></div>
+                                    </div>
+                                <!--<div class="row">
+                                        <div class="col-lg-5">
+                                            <div id="calendarForm"></div>
+                                        </div>
+                                        <div class="col-lg-7">
+                                            <div class="chart" id="KneeAngleChart">
+                                                <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+                                                <script type="text/javascript">
+                                                var graphs = {{test_graphJSON | safe}};
+                                                Plotly.plot('KneeAngleChart',graphs,{});
+                                                </script>
+                                                </html>
+                                            </div>
+                                        </div>
+                                    <div>-->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div
+                                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                        aria-labelledby="dropdownMenuLink">
+                                            <div class="dropdown-header">Dropdown Header:</div>
+                                            <a class="dropdown-item" href="#">Action</a>
+                                            <a class="dropdown-item" href="#">Another action</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#">Something else here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <table class="table test"> 
+                                        <tr> 
+                                            <th>운동 시각</th> 
+                                            <th>세트</th> 
+                                            <th>횟수</th> 
+                                        </tr> 
+                                        <tbody id="table1"> 
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    
+                    </div>
+                    <!-- Jun's part -->
+
                     <!-- Content Row -->
                     <div class="row">
 
@@ -427,6 +524,138 @@
             </div>
         </div>
     </div>
+
+    <!-- calendar js -->
+    <script>
+        (function () {
+            calendarMaker($("#calendarForm"), new Date());
+        })();
+
+        var nowDate = new Date();
+        function calendarMaker(target, date) {
+            if (date == null || date == undefined) {
+                date = new Date();
+            }
+            nowDate = date;
+            if ($(target).length > 0) {
+                var year = nowDate.getFullYear();
+                var month = nowDate.getMonth() + 1;
+                $(target).empty().append(assembly(year, month));
+            } else {
+                console.error("custom_calendar Target is empty!!!");
+                return;
+            }
+
+            var thisMonth = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1);
+            var thisLastDay = new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0);
+
+            var tag = "<tr>";
+            var cnt = 0;
+            //빈 공백 만들어주기
+            for (i = 0; i < thisMonth.getDay(); i++) {
+                tag += "<td></td>";
+                cnt++;
+            }
+            //날짜 채우기
+            var days_dict;
+            $.ajax({
+                url:"squartdays",
+                method:"post",
+                data:{year,month},//user값 받는거 만들어야함
+                async: false,
+                success:function(data){
+                    days_dict = data['result']
+                    //for(key in days_dict) {
+                    //    days_dict[key]=days_dict[key].split(',')
+                    //}
+                }
+            });
+            
+            for (i = 1; i <= thisLastDay.getDate(); i++) {
+                if (cnt % 7 == 0) { tag += "<tr>"; }
+                if (days_dict.hasOwnProperty(String(i))){ 
+                    tag += "<td>" + i + "<div>" + days_dict[i] + "</div>" +"</td>";
+                    cnt++;
+                }
+                else {
+                    tag += "<td>" + i +"</td>";
+                    cnt++;
+                }
+                if (cnt % 7 == 0) {
+                    tag += "</tr>";
+                }
+            }
+            $(target).find("#custom_set_date").append(tag);
+            calMoveEvtFn();
+
+            function assembly(year, month) {
+                var calendar_html_code =
+                    "<table class='custom_calendar_table' style='display: inline-block'>" +
+                    "<colgroup>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "<col style='width:92px'/>" +
+                    "</colgroup>" +
+                    "<thead class='cal_date'>" +
+                    "<th><button type='button' class='prev'><</button></th>" +
+                    "<th colspan='5'><p><span>" + year + "</span>년 <span>" + month + "</span>월</p></th>" +
+                    "<th><button type='button' class='next'>></button></th>" +
+                    "</thead>" +
+                    "<thead  class='cal_week'>" +
+                    "<th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th>" +
+                    "</thead>" +
+                    "<tbody id='custom_set_date'>" +
+                    "</tbody>" +
+                    "</table>";
+                return calendar_html_code;
+            }
+
+            function calMoveEvtFn() {
+                //전달 클릭
+                $(".custom_calendar_table").on("click", ".prev", function () {
+                    nowDate = new Date(nowDate.getFullYear(), nowDate.getMonth() - 1, nowDate.getDate());
+                    calendarMaker($(target), nowDate);
+                });
+                //다음날 클릭
+                $(".custom_calendar_table").on("click", ".next", function () {
+                    nowDate = new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, nowDate.getDate());
+                    calendarMaker($(target), nowDate);
+                });
+                //일자 선택 클릭
+                $(".custom_calendar_table").on("click", "td", function () {
+                    $(".custom_calendar_table .select_day").removeClass("select_day");
+                    $(this).removeClass("select_day").addClass("select_day");
+                    var date=$(this).html()
+                    date=date.split('<div>')[0]
+                    TableMaker(year,month,date)
+                });
+            }
+        }
+        
+        function TableMaker(year,month,date){//무릎각도 그래프 제거
+            $.ajax({
+                url:"tableMaker",
+                method:"post",
+                data:{year,month,date},//user값 받는거 만들어야함
+                success:function(data){
+                    time_data=data['result']
+                    var table = $('#table1')
+                    table.empty()
+                    for (var i=0; i < time_data.length; i++) { 
+                        var row = `<tr> <td>${time_data[i].TIME}</td> <td>${time_data[i].SET_COUNT}</td> <td>${time_data[i].REP_COUNT}</td> </tr>` 
+                        table.append(row); 
+                    }
+                    
+                }
+            }); 
+        }
+
+    </script>
+    <!-- calendar js end -->
 
     <!-- Bootstrap core JavaScript-->
     <script src="{{url_for('static', filename = 'vendor/jquery/jquery.min.js')}}"></script>
