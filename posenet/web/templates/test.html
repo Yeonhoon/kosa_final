@@ -1,15 +1,14 @@
-<!doctype html>
-<html>
- <body>
-  <h1>Hello Plotly (but not Dash)</h1>
-  <div id="chart" class="chart"></div>
-  
-
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>달력 만들기</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="{{url_for('static', filename='css/calendar.css')}}" rel="stylesheet">
+</head>
+<body>
+    <div id="calendarForm"></div>
 </body>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script type="text/javascript">
-  var graphs = {{graphJSON | safe}};
-  Plotly.plot('chart',graphs,{});
-</script>
+<script src="{{url_for('static', filename = 'js/calendar.js')}}"></script>
 </html>
