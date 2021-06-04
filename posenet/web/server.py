@@ -78,14 +78,10 @@ def logout():
 @app.route('/main')
 def dash_page():
     x = user.get_squat_data(session['user_id'])
-    print(x)
-    # id = x[0][0]
-    # sets = x[0][1]
-    # reps = x[0][2]
-    # dates = x[0][3]
     con = um.conn
     sql = """select TO_CHAR(squat_date, 'YYYY-MM-DD') as dates, user_id, sum(set_count * rep_count) as volume from squat_archive 
-            where user_id= """ + "'" +session['user_id'] + "'" + "group by TO_CHAR(squat_date, 'YYYY-MM-DD'), user_id"
+            where user_id= """ + "'" +session['user_id'] + "'" + "group by TO_CHAR(squat_date, 'YYYY-MM-DD'), user_id " + \
+            "order by dates"
     df = pd.read_sql(sql, con=con)
     fig = px.bar(df, x='DATES', y= 'VOLUME', template='plotly_white', color="VOLUME", 
                     color_continuous_scale='Teal')
@@ -95,24 +91,27 @@ def dash_page():
             height = 330
             )
     graphJSON  = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
-    # knee_query = """select user_id, set_count, rep_count, squat_date from squat_archive where user_id = '{}'""".format(session['user_id'])
-    # knee_df = pd.read_sql(knee_query, con=con)
-    # print("df: ", df)
-    # knee_fig = px.line(knee_df, x='SQUAT_DATE', y='REP_COUNT', template="simple_white") #barmode='group'
-    # knee_graphJSON = json.dumps(knee_fig, cls=plotly.utils.PlotlyJSONEncoder)
-    
+    xx = df.to_json(orient='columns')
     #정해진 달 (6월) 스쿼트한 날 찾기
-    return render_template('main.html', id = session['user_id'], graphJSON=graphJSON)
+    return render_template('main.html', id = session['user_id'], graphJSON=graphJSON,xx=xx )
 
 # @app.route('/mypage')
 # def my_page():
 #     return render_template('mypage.html')
 
 
-# @app.route('/test')
-# def notdash():
-#     return render_template('test.html')
+@app.route('/test')
+def notdash():
+    x = user.get_squat_data(session['user_id'])
+
+    con = um.conn
+    sql = """select TO_CHAR(squat_date, 'YYYY-MM-DD') as dates, user_id, sum(set_count * rep_count) as volume from squat_archive 
+            where user_id= """ + "'" +session['user_id'] + "'" + "group by TO_CHAR(squat_date, 'YYYY-MM-DD'), user_id"
+    df = pd.read_sql(sql, con=con)
+    xx = df.to_json(orient='columns')
+    # test = df.to_json()
+    # print(test)
+    return render_template('test2.html', xx=xx)
 
 @app.route('/squartdays',methods=['POST'])
 def squartdays():
