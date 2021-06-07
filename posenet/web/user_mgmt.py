@@ -1,8 +1,16 @@
 import cx_Oracle
 from flask_login import UserMixin
 
-orcl_dsn = cx_Oracle.makedsn(host='192.168.2.131', port=1521, sid='orcl')
-conn = cx_Oracle.connect(dsn = orcl_dsn, user='jyhoon94', password='123')
+# orcl_dsn = cx_Oracle.makedsn(host='localhost', port=1521, sid='xe') #192.168.2.131
+# conn = cx_Oracle.connect(dsn = orcl_dsn, user='jyhoon94', password='123456')
+
+oracle_dsn = cx_Oracle.makedsn(host='52.78.190.218'
+                            ,port=1521
+                            ,sid="xe")
+
+conn = cx_Oracle.connect(dsn=oracle_dsn
+                    ,user='team'
+                    ,password='123456')
 
 class User:
     # def __init__(self, user_id, user_email, user_pw, user_name):

@@ -53,6 +53,10 @@ def checkId():
 def loginForm():
     return render_template('user/login.html')
 
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
 @app.route('/login', methods=['POST'])
 def login():
     # ajax를 통해 검사를 받아야 하므로 ajax에서 선언한 check_id와 check_pw로 받아야함
@@ -98,6 +102,10 @@ def dash_page():
 # @app.route('/mypage')
 # def my_page():
 #     return render_template('mypage.html')
+
+@app.route('/temp')
+def temps():
+    return render_template('temp.html')
 
 
 @app.route('/test')

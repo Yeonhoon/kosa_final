@@ -108,9 +108,20 @@
       </form> -->
           
     <!-- </div> -->
-    <!-- {% include 'survey/footer.html' %} -->
+    {% include 'survey/footer.html' %}
 </body>
 <script>
+function toSignup(){
+  $.ajax({
+    url:'/signupform',
+    method:'get',
+    success: function(){
+      location.href='signupform';
+    }
+  })
+}
+
+
 function login(){
       event.preventDefault();
       const mid = $("#id").val();
@@ -132,7 +143,7 @@ function login(){
             alert("비밀번호 확인!")
           }
           else{
-            location.href="/"
+            location.href="/main"
           }
           // else {
           //   location.href="/"
