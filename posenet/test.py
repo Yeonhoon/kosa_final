@@ -7,7 +7,6 @@ from PyQt5 import QtCore, uic
 import pyttsx3
 import datetime
 import webbrowser
-#-------------------------------------------import 구역
 import cv2
 from numpy.core.fromnumeric import mean
 import pafy
