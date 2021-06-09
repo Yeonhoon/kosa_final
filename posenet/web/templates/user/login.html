@@ -22,7 +22,7 @@
     <link href="{{url_for('static', filename='css/sb-admin-2.min.css')}}" rel="stylesheet">
 
 </head>
-<body class="bg-gradient-secondary">
+<body class="bg-gradient-primary">
     <!-- {% include 'header.html' %} -->
     <div class="container">
 
@@ -39,7 +39,7 @@
                           <div class="col-lg-6">
                               <div class="p-5">
                                   <div class="text-center">
-                                      <h1 class="h4 text-gray-900 mb-4">Welcome!</h1>
+                                      <h1 class="h2 text-gray-900 mb-4">Sign In</h1>
                                   </div>
                                   <form onsubmit="login()" method="post" >
                                       <div class="form-group">
@@ -67,9 +67,6 @@
                                           <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
                                       </a> -->
                                   </form>
-                                  <div class="text-center">
-                                      <a class="small" href="forgot-password.html">Forgot Password?</a>
-                                  </div>
                                   <div class="text-center">
                                       <a class="small" href="/signupform">Create an Account!</a>
                                   </div>
@@ -108,7 +105,6 @@
       </form> -->
           
     <!-- </div> -->
-    {% include 'survey/footer.html' %}
 </body>
 <script>
 function toSignup(){

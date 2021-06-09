@@ -44,6 +44,7 @@ def signUp():
 @app.route('/checkMid', methods=['POST'])
 def checkId():
     data = request.form['check_id'] # 키로 받아야 함. 그래야 value를 사용 가능
+    print(data)
     if user.checkId(data) is None:
         return jsonify(result='success')
     else:

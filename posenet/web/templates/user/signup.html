@@ -6,24 +6,26 @@
     <title>두홈트 2021 회원가입</title>
   
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link href="{{url_for('static', filename='css/mdb.min.css')}}" rel="stylesheet">
-    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">	
-    <link
-      href="{{url_for('static', filename='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap')}}"
-      rel="stylesheet">
-    <link href="{{url_for('static', filename='https://use.fontawesome.com/releases/v5.11.2/css/all.css')}}"
-      rel="stylesheet">
-    <link href="{{url_for('static', filename='css/createId.css')}}" rel="stylesheet">
    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"> -->
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous"> -->
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
 	
+
+	 <!-- Custom fonts for this template-->
+	 <link href="{{url_for('static', filename = 'vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet" type="text/css">
+	 <link
+		 href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+		 rel="stylesheet">
+ 
+	 <!-- Custom styles for this template-->
+	 <link href="{{url_for('static', filename= 'css/sb-admin-2.min.css')}}" rel="stylesheet">
+
 	<style>
 		#linetr {
 				border-top : 1px solid black;
@@ -67,91 +69,117 @@
 	</script> -->
   </head>
 
-<body onload="start()">
-    {% include 'header.html' %} <!-- import header -->
-	<div style="text-align:center; width : 900px; height:500px; margin:100px auto">
-		<div class = "txtinfo"> 
-			<form method="post" name="joinform" action="/signup" >
-				<table style="border-spacing:30px; border-collapse:separate;">
-					<tr style="">
-						<th>아이디</th>
-						<td class="inputtd"><input id = "mid" placeholder="6자리 이상의 영문 혹은 영문과 숫자를 조합" type = "text" name="mid" /></td>
-						
-						<td class="checktd">
-							<input type="button" id ="midcheckbtn" value="중복확인" onclick='console.log("확인")'/>
-						</td>
-					</tr>
-					<tr>
-						<th>이메일</th>
-						<td class="inputtd">
-							<input id = "memail" placeholder="E-mail" type = "text" name="memail" onkeyup="doublepw(this.value)"/>
-						</td>
-						
-					</tr>
-					<tr>
-						<th>비밀번호</th>
-						<td class="inputtd"><input id = "mpw" placeholder="PW" type = "password" name="mpw" onkeyup="doublepw(this.value)"/>
-						</td>
-					</tr>
-					<tr>
-						<th>비밀번호 확인</th>
-						<td class="inputtd"><input id = "mpw2" placeholder="Check PW" type = "password" name="mpw2" onkeyup="doublepw(this.value)"/>
-						</td>
-						<td><small id="sameMpw" class="form-text text-danger" style="font-size:10px"></small></td>
-						
-					</tr>
-					<tr>
-						<th>이름</th>
-						<td class="inputtd"><input id = "mname" placeholder="Your Name" type = "text" name="mname"/></td>
-						
-					</tr>
-					<tr>
-						<td colspan = "2" style="width : 700px;">
-							<button  class="btn btn-info btn-sm" id ="joinbtn" href="create" style="width:100%; height: 45px; align: center; font-size:1.2em; cursor:pointer">가입하기</button>
-						</td>
-					</tr>
-				</table>
-				</form>
-				<script>
-						var loginbtn = document.getElementById('joinbtn');	
-						var flag1 = false;
-						var flag2 = false;
+  <body class="bg-gradient-primary">
+    <div class="container">
+		
+        <div class="card o-hidden border-0 shadow-lg my-5">
+            <div class="card-body p-0">
+                <!-- Nested Row within Card Body -->
+                <div class="row">
+                    <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
+                    <div class="col-lg-7">
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h1 class="h2 text-gray-900 mb-4">Sign Up</h1>
+                            </div>
+							<form class="user" method="post" name="joinform" action="/signup" >
+                                <div class="form-group row">
 
-						$('#midcheckbtn').click(function(){
-							const mid = $("#mid").val();
-							$.ajax({
-								url:"checkMid",
-								method:"POST",
-								data: {
-									'check_id':mid
-								},
-								success : function(data) {
-									if(data.result === "success") {
-										flag1 = true;
-										alert("사용 가능한 아이디 입니다.")
-									} else if(data.result ==="failed") {
-										flag1 = false;
-										alert("사용 불가능한 아이디 입니다.");
-									}
-								}
-							});
-						});		
-												
-						function doublepw(val) {
-							var pw1 = document.getElementById('mpw').value;
-							var pw2 = document.getElementById('mpw2').value;
-							
-							if(pw2 == pw1){
-								$("#sameMpw").html("비밀번호가 동일합니다");
-								flag2 = true;
-							} else {
-								$("#sameMpw").html("비밀번호가 틀립니다");
-								flag2 = false;
-							}
-						};
-				</script>
-				
-			</div>
-	</div>
-		{% include 'survey/footer.html' %} <!-- import footer -->
+									<div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input type="text" class="form-control form-control-user" id="mid"
+                                            placeholder="ID" name="mid">
+									</div>
+										
+									<div class="col-sm-4 mb-3 mb-sm-0">
+										<input type="button" style="background-color: #4e73df; color:white;" class="form-control" id ="midcheckbtn" value="check" onclick='console.log("확인")'/>
+                                    </div>
+                                    
+                                </div>
+								
+                                <div class="form-group">
+									<input type="email" class="form-control form-control-user" id="exampleInputEmail"
+									placeholder="Email Address" name="memail">
+                                </div>
+                                <div class="form-group row">
+									<div class="col-sm-6 mb-3 mb-sm-0">
+										<input type="password" class="form-control form-control-user"
+										id="mpw" placeholder="Password" name="mpw" onkeyup="doublepw(this.value)">
+                                    </div>
+                                    <div class="col-sm-6">
+										<input type="password" class="form-control form-control-user"
+										id="mpw2" placeholder="Repeat Password" name="mpw2" onkeyup="doublepw(this.value)">
+                                    </div>
+                                </div>
+								<div class="form-group row">
+									<div class="col-sm-6 mb-3 mb-sm-0">
+										<input type="text" class="form-control form-control-user" id="exampleFirstName"
+										placeholder="Name" name="mname">
+									</div>
+									<small id="sameMpw" class="form-text text-danger" style="font-size:10px"></small>
+								</div>
+                                <a href="/signup" class="btn btn-primary btn-user btn-block">
+                                    회원가입
+                                </a>
+                                
+                            </form>
+                            <hr>
+                           
+                            <div class="text-center">
+                                <a class="small" href="/loginform">Already have an account? Login!</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{{url_for('static', filename = 'vendor/jquery/jquery.min.js')}}"></script>
+    <script src="{{url_for('static', filename = 'vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{{url_for('static', filename = 'vendor/jquery-easing/jquery.easing.min.js')}}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{{url_for('static', filename = 'js/sb-admin-2.min.js')}}"></script>
 </body>
+<script>
+	var loginbtn = document.getElementById('joinbtn');	
+	var flag1 = false;
+	var flag2 = false;
+
+	$('#midcheckbtn').click(function(){
+		const mid = $("#mid").val();
+		$.ajax({
+			url:"checkMid",
+			method:"POST",
+			data: {
+				'check_id':mid
+			},
+			success : function(data) {
+				if(data.result === "success") {
+					flag1 = true;
+					alert("사용 가능한 아이디 입니다.")
+				} else if(data.result ==="failed") {
+					flag1 = false;
+					alert("사용 불가능한 아이디 입니다.");
+				}
+			}
+		});
+	});		
+							
+	function doublepw(val) {
+		var pw1 = document.getElementById('mpw').value;
+		var pw2 = document.getElementById('mpw2').value;
+		
+		if(pw2 == pw1){
+			$("#sameMpw").html("비밀번호가 동일합니다");
+			flag2 = true;
+		} else {
+			$("#sameMpw").html("비밀번호가 틀립니다");
+			flag2 = false;
+		}
+	};
+</script>
