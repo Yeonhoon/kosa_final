@@ -32,7 +32,7 @@ def signUpform():
     return render_template('user/signup.html')
 
 
-@app.route('/signup', methods=['POST'])
+@app.route('/signup', methods=['POST','GET'])
 def signUp():
     user_id = request.form['mid']
     user_email = request.form['memail']
@@ -53,10 +53,6 @@ def checkId():
 @app.route('/loginform', methods=['GET'])
 def loginForm():
     return render_template('user/login.html')
-
-@app.route('/register')
-def register():
-    return render_template('register.html')
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -88,17 +84,10 @@ def dash_page():
             where user_id= """ + "'" +session['user_id'] + "'" + "group by TO_CHAR(squat_date, 'YYYY-MM-DD'), user_id " + \
             "order by dates"
     df = pd.read_sql(sql, con=con)
-    fig = px.bar(df, x='DATES', y= 'VOLUME', template='plotly_white', color="VOLUME", 
-                    color_continuous_scale='Teal')
-    fig.update_xaxes(type="date")
-    fig.update_layout(
-            font_family = "Droid Sans",
-            height = 330
-            )
-    graphJSON  = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    
     xx = df.to_json(orient='columns')
     #정해진 달 (6월) 스쿼트한 날 찾기
-    return render_template('main.html', id = session['user_id'], graphJSON=graphJSON,xx=xx )
+    return render_template('main.html', id = session['user_id'], xx=xx )
 
 # @app.route('/mypage')
 # def my_page():
@@ -156,7 +145,7 @@ def kneeAngleGraph():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5001)
 
 
     

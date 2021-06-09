@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>두홈트 2021 회원가입</title>
+  
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="{{url_for('static', filename='css/mdb.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">	
+    <link
+      href="{{url_for('static', filename='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap')}}"
+      rel="stylesheet">
+    <link href="{{url_for('static', filename='https://use.fontawesome.com/releases/v5.11.2/css/all.css')}}"
+      rel="stylesheet">
+    <link href="{{url_for('static', filename='css/createId.css')}}" rel="stylesheet">
+   
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+	
+	<style>
+		#linetr {
+				border-top : 1px solid black;
+			}
+		
+		.txtinfo {
+			width: 800px;
+			height: 500px;
+			padding: 20px;
+		}
+
+		.txtinfo input[type="text"] {
+			font-size:1.2em;
+			padding:0.25em;
+			box-sizing: border-box;
+			width:100%;
+		} 
+		
+		input[type="password"] {
+			font-size:1.2em;
+			padding:0.25em;
+			box-sizing: border-box;
+			width:100%;
+		}
+			
+	</style>
+	<!-- <script type="text/javascript">
+		let change = true;
+		
+		const signup_check = (loginbtn) => {
+			if(flag1&&flag2){
+				loginbtn.disabled=false;
+			}else{
+				loginbtn.disabled=true;
+			}
+		};
+		
+		const start = () => {
+			setInterval(signup_check, 250, document.getElementById('joinbtn'));
+		}
+	</script> -->
+  </head>
+
+<body onload="start()">
+    {% include 'header.html' %} <!-- import header -->
+	<div style="text-align:center; width : 900px; height:500px; margin:100px auto">
+		<div class = "txtinfo"> 
+			<form method="post" name="joinform" action="/signup" >
+				<table style="border-spacing:30px; border-collapse:separate;">
+					<tr style="">
+						<th>아이디</th>
+						<td class="inputtd"><input id = "mid" placeholder="6자리 이상의 영문 혹은 영문과 숫자를 조합" type = "text" name="mid" /></td>
+						
+						<td class="checktd">
+							<input type="button" id ="midcheckbtn" value="중복확인" onclick='console.log("확인")'/>
+						</td>
+					</tr>
+					<tr>
+						<th>이메일</th>
+						<td class="inputtd">
+							<input id = "memail" placeholder="E-mail" type = "text" name="memail" onkeyup="doublepw(this.value)"/>
+						</td>
+						
+					</tr>
+					<tr>
+						<th>비밀번호</th>
+						<td class="inputtd"><input id = "mpw" placeholder="PW" type = "password" name="mpw" onkeyup="doublepw(this.value)"/>
+						</td>
+					</tr>
+					<tr>
+						<th>비밀번호 확인</th>
+						<td class="inputtd"><input id = "mpw2" placeholder="Check PW" type = "password" name="mpw2" onkeyup="doublepw(this.value)"/>
+						</td>
+						<td><small id="sameMpw" class="form-text text-danger" style="font-size:10px"></small></td>
+						
+					</tr>
+					<tr>
+						<th>이름</th>
+						<td class="inputtd"><input id = "mname" placeholder="Your Name" type = "text" name="mname"/></td>
+						
+					</tr>
+					<tr>
+						<td colspan = "2" style="width : 700px;">
+							<button  class="btn btn-info btn-sm" id ="joinbtn" href="create" style="width:100%; height: 45px; align: center; font-size:1.2em; cursor:pointer">가입하기</button>
+						</td>
+					</tr>
+				</table>
+				</form>
+				<script>
+						var loginbtn = document.getElementById('joinbtn');	
+						var flag1 = false;
+						var flag2 = false;
+
+						$('#midcheckbtn').click(function(){
+							const mid = $("#mid").val();
+							$.ajax({
+								url:"checkMid",
+								method:"POST",
+								data: {
+									'check_id':mid
+								},
+								success : function(data) {
+									if(data.result === "success") {
+										flag1 = true;
+										alert("사용 가능한 아이디 입니다.")
+									} else if(data.result ==="failed") {
+										flag1 = false;
+										alert("사용 불가능한 아이디 입니다.");
+									}
+								}
+							});
+						});		
+												
+						function doublepw(val) {
+							var pw1 = document.getElementById('mpw').value;
+							var pw2 = document.getElementById('mpw2').value;
+							
+							if(pw2 == pw1){
+								$("#sameMpw").html("비밀번호가 동일합니다");
+								flag2 = true;
+							} else {
+								$("#sameMpw").html("비밀번호가 틀립니다");
+								flag2 = false;
+							}
+						};
+				</script>
+				
+			</div>
+	</div>
+		{% include 'survey/footer.html' %} <!-- import footer -->
+</body>

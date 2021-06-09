@@ -82,7 +82,7 @@
                             <div class="text-center">
                                 <h1 class="h2 text-gray-900 mb-4">Sign Up</h1>
                             </div>
-							<form class="user" method="post" name="joinform" action="/signup" >
+							<form class="user" method="POST" name="joinform" action="/signup" >
                                 <div class="form-group row">
 
 									<div class="col-sm-6 mb-3 mb-sm-0">
@@ -117,9 +117,9 @@
 									</div>
 									<small id="sameMpw" class="form-text text-danger" style="font-size:10px"></small>
 								</div>
-                                <a href="/signup" class="btn btn-primary btn-user btn-block">
+                                <button href="" id="joinbtn" class="btn btn-primary btn-user btn-block">
                                     회원가입
-                                </a>
+								</button>
                                 
                             </form>
                             <hr>
@@ -182,4 +182,9 @@
 			flag2 = false;
 		}
 	};
+
+	function signUp(){
+
+	}
+
 </script>
