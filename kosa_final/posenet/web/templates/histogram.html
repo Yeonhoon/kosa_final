@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>PISA 2018 내 자녀 예측 서비스</title>
+  
+    <link href="{{url_for('static', filename='css/mdb.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/hist.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='https://use.fontawesome.com/releases/v5.11.2/css/all.css')}}" rel="stylesheet">
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+</head>
+<body>
+  {% include 'header.html' %}
+  <h1>당신의 예상 학업 성취도는</h1>
+  <!--Main layout-->
+  <main class="mt-5" style="text-align:center;">
+    <div class="container">
+        <div class="sub_cont" style="text-align:center;">
+          <div id='myRead' style="display:inline-block;"></div>
+          <div id='myReadGrade' style="display:inline-block;"></div>
+          <div class="descript" style="text-align: left;">
+            <ul>
+              <li>예상 읽기 점수는 : <b>{{read_res}}</b><br></li>
+              <li>예상 등급은 : <b><span id="read_grade">1</span></b></li>
+            </ul>
+
+            <b>향상 해야할 점 : </b>
+            <ul><li>
+              {{'<li>'.join(read_plus)|safe}}
+            </ul>
+            <br>
+
+            <b>줄여야할 점 : </b>
+            <ul><li>
+              {{'<li>'.join(read_minus)|safe}}
+            </ul>
+
+          </div>
+        </div>
+        <div class="sub_cont" style="text-align:center;">
+          <div id='myMath' style="display:inline-block;"></div>
+          <div id='myMathGrade' style="display:inline-block;"></div>
+          <div class="descript" style="text-align: left;">
+            <ul>
+              <li>예상 수학 점수는 : <b>{{math_res}}</b></li>
+              <li>예상 등급은 : <b><span id="math_grade">1</span></b></li>
+            </ul>
+
+            <b>향상 해야할 점 : </b>
+            <ul><li>
+              {{'<li>'.join(math_plus)|safe}}
+            </ul>
+            <br>
+            <b>줄여야할 점 : </b>
+            <ul><li>
+              {{'<li>'.join(math_minus)|safe}}
+            </ul>
+
+          </div>
+        </div>
+        <div class="sub_cont" style="text-align:center;">
+          <div id='myScie' style="display:inline-block;"></div>
+          <div id='myScieGrade' style="display:inline-block;"></div>
+          <div class="descript" style="text-align: left;">
+            <ul>
+              <li>예상 과학 점수는 : <b>{{scie_res}}</b><br></li>
+              <li>예상 등급은 : <b><span id="scie_grade">1</span></b></li>
+            </ul>
+
+            <b>향상 해야할 점 : </b>
+            <ul><li>
+              {{'<li>'.join(scie_plus)|safe}}
+            </ul>
+            <br>
+            
+            <b>줄여야할 점 : </b>
+            <ul><li>
+              {{'<li>'.join(scie_minus)|safe}}
+            </ul>
+
+          </div>
+        </div>
+    </div>
+    <div style="width:60%; margin:50px auto; color:#a0a0a0;">
+      <h5 style="text-align:center;">
+        회원이 본 사이트에서 제공하는 관련 서비스를 이용함에 있어, 사이트에 포함되어 있거나, 사이트를 통해 배포되거나, 사이트에 포함되어 있는 서비스로부터 얻게 되는 모든 정보 (이하 "자료") 의 정확성이나 신뢰성에 대해 어떠한 보증도 하지 않으며, 자료의 정확성, 저작권 준수 여부, 적법성 또는 도덕성에 대해 아무런 책임을 지지 않습니다.
+      </h5>
+    </div>
+    
+    <a href="/retest" class="btn btn-danger">다시 테스트하기</a>
+  </main>
+  <!--Main layout-->
+
+  <!--가독성 작업-->
+  <script>
+    var math_top = {{math_plus}};
+    console.log('math_top');
+
+  </script>
+
+  <!--등급별-->
+  <!--읽기-->
+  <script>
+    var x = {{read_grade}};
+    var result = {{read_res}};
+    var level;
+    var score = 0;
+
+    if(result>698.32){
+      level = 'Level 1c 이하';
+      score=0;
+    }else if(result>625.61){
+      level = 'Level 1c';
+      score=1;
+    }else if(result>552.89){
+      level = 'Level 1b';
+      score=2;
+    }else if(result>480.18){
+      level = 'Level 1a';
+      score=3;
+    }else if(result>407.47){
+      level = 'Level 2';
+      score=4;
+    }else if(result>334.75){
+      level = 'Level 3';
+      score=5;
+    }else if(result>262.04){
+      level = 'Level 4';
+      score=6;
+    }else if(result>189.33){
+      level = 'Level 5';
+      score=7;
+    }else{
+      level = 'Level 6';
+      score=8;
+    }
+
+    document.getElementById('read_grade').innerHTML = level
+
+    var colorc = ['rgb(158,202,225)','rgb(158,202,225)',
+    'rgb(158,202,225)','rgb(158,202,225)','rgb(158,202,225)',
+    'rgb(158,202,225)','rgb(158,202,225)','rgb(158,202,225)','rgb(158,202,225)'];
+
+    colorc[score]= 'red'
+
+    var tableData = x.reduce(function(obj, val){
+      obj[val] = ++obj[val] || 1;
+      return obj;
+    },{});
+
+    console.log();
+    var data = [
+      {
+        x: Object.keys(tableData),
+        y: Object.values(tableData),
+        marker: {
+          color: colorc
+        },
+        text: Object.values(tableData).map(String),
+        textposition: 'auto',
+        hoverinfo: 'none',
+        type: 'bar'
+      }
+    ];
+
+    var layout = {
+      title: '읽기 Level 예상(2018)',
+      width: 500,
+      xaxis : {
+        title: "등급",
+        tickmode: 'array',
+        tickvals:[0,1,2,3,4,5,6,7,8],
+        ticktext:['Level 6', 'Level 5','Level 4','Level 3','Level 2',
+        'Level 1a','Level 1b','Level 1c','Level 1c 이하'
+          ]
+      },
+      yaxis : {
+        title: "학생 수"
+      },
+    };
+    Plotly.newPlot('myReadGrade', data, layout);
+
+  </script>
+  <!--수학-->
+  <script>
+    var x = {{math_grade}};
+    var result = {{math_res}};
+    var level;
+    var score = 0;
+
+    if(result>669.30){
+      level = 'Level 6';
+      score=0;
+    }else if(result>606.99){
+      level = 'Level 5';
+      score=1;
+    }else if(result>544.68){
+      level = 'Level 4';
+      score=2;
+    }else if(result>482.38){
+      level = 'Level 3';
+      score=3;
+    }else if(result>420.07){
+      level = 'Level 2';
+      score=4;
+    }else if(result>357.77){
+      level = 'Level 1';
+      score=5;
+    }else{
+      level = 'Level 1 이하';
+      score=6;
+    }
+
+    document.getElementById('math_grade').innerHTML = level
+
+    var colorc = ['rgb(158,202,225)','rgb(158,202,225)',
+    'rgb(158,202,225)','rgb(158,202,225)','rgb(158,202,225)',
+    'rgb(158,202,225)','rgb(158,202,225)'];
+
+    colorc[score]= 'red'
+
+    var tableData = x.reduce(function(obj, val){
+      obj[val] = ++obj[val] || 1;
+      return obj;
+    },{});
+
+    console.log();
+    var data = [
+      {
+        x: Object.keys(tableData),
+        y: Object.values(tableData),
+        marker: {
+          color: colorc
+        },
+        text: Object.values(tableData).map(String),
+        textposition: 'auto',
+        hoverinfo: 'none',
+        type: 'bar'
+      }
+    ];
+
+    var layout = {
+      title: '수학 Level 예상(2018)',
+      width: 500,
+      xaxis : {
+        title: "등급",
+        tickmode: 'array',
+        tickvals:[0,1,2,3,4,5,6],
+        ticktext:['Level 6','Level 5','Level 4',
+          'Level 3','Level 2','Level 1','Level 1 이하']
+      },
+      yaxis : {
+        title: "학생 수"
+      },
+    };
+    Plotly.newPlot('myMathGrade', data, layout);
+
+  </script>
+  <!--과학-->
+  <script>
+    var x = {{scie_grade}};
+    var result = {{scie_res}};
+    var level;
+    var score = 0;
+
+    if(result>707.93){
+      level = 'Level 6';
+      score=0;
+    }else if(result>633.33){
+      level = 'Level 5';
+      score=1;
+    }else if(result>558.73){
+      level = 'Level 4';
+      score=2;
+    }else if(result>484.14){
+      level = 'Level 3';
+      score=3;
+    }else if(result>409.54){
+      level = 'Level 2';
+      score=4;
+    }else if(result>334.94){
+      level = 'Level 1a';
+      score=5;
+    }else if(result>260.54){
+      level = 'Level 1b';
+      score=6;
+    }else{
+      level = 'Level 1b 이하';
+      score=7;
+    }
+
+    document.getElementById('scie_grade').innerHTML = level
+
+    var colorc = ['rgb(158,202,225)','rgb(158,202,225)',
+    'rgb(158,202,225)','rgb(158,202,225)','rgb(158,202,225)',
+    'rgb(158,202,225)','rgb(158,202,225)','rgb(158,202,225)'];
+
+    colorc[score]= 'red'
+
+    var tableData = x.reduce(function(obj, val){
+      obj[val] = ++obj[val] || 1;
+      return obj;
+    },{});
+
+    console.log();
+    var data = [
+      {
+        x: Object.keys(tableData),
+        y: Object.values(tableData),
+        marker: {
+          color: colorc
+        },
+        text: Object.values(tableData).map(String),
+        textposition: 'auto',
+        hoverinfo: 'none',
+        type: 'bar'
+      }
+    ];
+
+    var layout = {
+      title: '과학 Level 예상(2018)',
+      width: 500,
+      xaxis : {
+        title: "등급",
+        tickmode: 'array',
+        tickvals:[0,1,2,3,4,5,6,7],
+        ticktext:['Level 6','Level 5','Level 4','Level 3',
+          'Level 2','Level 1a','Level 1b','Level 1b 이하']
+      },
+      yaxis : {
+        title: "학생 수"
+      },
+    };
+    Plotly.newPlot('myScieGrade', data, layout);
+
+  </script>
+  <!--점수별-->
+  <script>
+    var x = {{science}};
+    
+    var trace = {
+        x: x,
+        type: 'histogram',
+        xbins: { 
+            end: 1100, 
+            size: 10, 
+            start: 0
+        },
+    };
+
+    var res = {{scie_res}};
+
+    var layout = {
+      title: '과학 학업 성취 예상(2018)',
+      width: 500,
+      xaxis : {
+        title: "점수",
+        tickmode: 'linear',
+        dtick: 100,
+        tick0: 0,
+      },
+      yaxis : {
+        title: "학생 수"
+      },
+      shapes: [{
+        type: 'line',
+        x0: res,
+        y0: 0,
+        x1: res,
+        y1: 1,
+        yref: 'paper',
+        line: {
+          color: 'red',
+          width: 1,
+        }
+      }],
+      annotations:[{
+        text:'예상점수',
+        x : res,
+        y : 100,
+        showarrow: true,
+        arrowhead: 2,
+        ax: -50,
+        ay: 0,
+        arrowcolor:'rgb(255,0,0)',
+        font: {
+          color: "black",
+          size: 15
+        },
+        bordercolor: '#c7c7c7',
+        bgcolor: '#ffffff',
+        opacity: 0.8
+        },]
+    };
+
+    var data = [trace];
+    Plotly.newPlot('myScie', data, layout);
+
+    var x = {{math}};
+    
+    var trace = {
+        x: x,
+        type: 'histogram',
+        xbins: { 
+            end: 1100, 
+            size: 10, 
+            start: 0
+        },
+    };
+
+    var res = {{math_res}};
+
+    var layout = {
+      title: '수학 학업 성취 예상(2018)',
+      width: 500,
+      xaxis : {
+        title: "점수",
+        tickmode: 'linear',
+        dtick: 100,
+        tick0: 0,
+      },
+      yaxis : {
+        title: "학생 수"
+      },
+      shapes: [{
+        type: 'line',
+        x0: res,
+        y0: 0,
+        x1: res,
+        y1: 1,
+        yref: 'paper',
+        line: {
+          color: 'red',
+          width: 1,
+        }
+      }],
+      annotations:[{
+        text:'예상점수',
+        x : res,
+        y : 100,
+        showarrow: true,
+        arrowhead: 2,
+        ax: -50,
+        ay: 0,
+        arrowcolor:'rgb(255,0,0)',
+        font: {
+          color: "black",
+          size: 15
+        },
+        bordercolor: '#c7c7c7',
+        bgcolor: '#ffffff',
+        opacity: 0.8
+        }]
+    };
+
+    var data = [trace];
+    Plotly.newPlot('myMath', data, layout);
+
+    
+    var x = {{read}};
+    
+    var trace = {
+        x: x,
+        type: 'histogram',
+        xbins: { 
+            end: 1100, 
+            size: 10, 
+            start: 0
+        },
+    };
+
+    var res = {{read_res}};
+
+    var layout = {
+      title: '읽기 학업 성취 예상(2018)',
+      width: 500,
+      xaxis : {
+        title: "점수",
+        tickmode: 'linear',
+        dtick: 100,
+        tick0: 0,
+      },
+      yaxis : {
+        title: "학생 수"
+      },
+      shapes: [{
+        type: 'line',
+        x0: res,
+        y0: 0,
+        x1: res,
+        y1: 1,
+        yref: 'paper',
+        line: {
+          color: 'red',
+          width: 1,
+        }
+      }],
+      annotations:[{
+        text:'예상점수',
+        x : res,
+        y : 100,
+        showarrow: true,
+        arrowhead: 2,
+        ax: -50,
+        ay: 0,
+        arrowcolor:'rgb(255,0,0)',
+        font: {
+            color: "black",
+            size: 15
+        },
+        bordercolor: '#c7c7c7',
+        bgcolor: '#ffffff',
+        opacity: 0.8
+	    }]
+    };
+
+    var data = [trace];
+    Plotly.newPlot('myRead', data, layout);
+
+  </script>
+
+  <!--Footer-->
+  {% include 'survey/footer.html' %}
+  <!--Footer-->
+    <!-- MDB -->
+    <script type="text/javascript" src="js/mdb.min.js"></script>
+    <!-- Custom scripts -->
+    <script type="text/javascript" src="js/script.js"></script>
+</body>
+</html>
