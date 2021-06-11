@@ -1,7 +1,7 @@
 import cx_Oracle as oracle
 
-orcl_dsn = oracle.makedsn(host='localhost', port=1521, sid='xe') #192.168.2.131
-conn = oracle.connect(dsn = orcl_dsn, user='jyhoon94', password='123456')
+orcl_dsn = oracle.makedsn(host='52.79.176.139', port=1521, sid='xe') #192.168.2.131
+conn = oracle.connect(dsn = orcl_dsn, user='jyh', password='123456')
 
 # oracle_dsn = oracle.makedsn(host='52.78.190.218'
 #                             ,port=1521

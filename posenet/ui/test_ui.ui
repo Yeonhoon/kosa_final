@@ -6,40 +6,131 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>940</width>
-    <height>715</height>
+    <width>1386</width>
+    <height>767</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow
+{
+	background-color: rgb(248, 249, 252);
+	color: #000000;
+
+}
+QMenuBar{
+	background-color: rgb(80,120,222);
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true">QWidget
+{
+	background-color: rgb(248, 249, 252);
+	color: #000000;
+
+}
+
+
+/*-----QLabel-----*/
+QLabel
+{
+	background-color: transparent;
+	color: rgb(80, 82, 95);
+	font-size: 13px;
+
+}
+
+
+/*-----QPushButton-----*/
+QPushButton
+{
+	background-color: rgb(80,120,222);
+	color: #fff;
+	font-size: 11px;
+	font-weight: bold;
+	border-radius: 15px;
+	margin: 3px;
+    border-bottom: 2px solid gray;
+}
+
+QPushButton::hover
+{
+	background-color: #3457b3;
+
+}
+
+QPushButton::disabled
+{
+	background-color: #4d5770;
+
+}
+
+
+QPushButton::pressed
+{
+	background-color: #85a7ff;
+
+}
+
+
+
+
+
+</string>
+   </property>
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>20</y>
-      <width>901</width>
-      <height>611</height>
+      <y>50</y>
+      <width>1341</width>
+      <height>661</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#groupBox {
+	 border: 2px solid #90adf5;
+ 	 border-radius: 5px;
+}</string>
+    </property>
     <property name="title">
-     <string>GroupBox</string>
+     <string/>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
-    <widget class="QLabel" name="imgLabel">
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QLabel" name="camLabel">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>680</x>
        <y>20</y>
-       <width>841</width>
-       <height>561</height>
+       <width>640</width>
+       <height>480</height>
       </rect>
      </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth">
+      <number>2</number>
+     </property>
      <property name="text">
-      <string>화면</string>
+      <string/>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -51,28 +142,218 @@
       <number>20</number>
      </property>
     </widget>
+    <widget class="QLabel" name="refLabel">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>20</y>
+       <width>621</width>
+       <height>561</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth">
+      <number>2</number>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignHCenter|Qt::AlignTop</set>
+     </property>
+     <property name="margin">
+      <number>20</number>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>600</y>
+       <width>951</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="loginButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>로그인하기</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="webButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>홈페이지</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="startButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>시작하기</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="stopButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>끝내기</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QGroupBox" name="setBox">
+     <property name="geometry">
+      <rect>
+       <x>680</x>
+       <y>520</y>
+       <width>501</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>세트 수 :</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="setLabel">
+        <property name="font">
+         <font>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>1</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line">
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>개수 :</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="repLabel">
+        <property name="font">
+         <font>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>630</y>
-      <width>671</width>
-      <height>41</height>
+      <x>40</x>
+      <y>10</y>
+      <width>181</width>
+      <height>31</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QPushButton" name="startButton">
+      <widget class="QLabel" name="userlabel">
+       <property name="font">
+        <font>
+         <pointsize>-1</pointsize>
+        </font>
+       </property>
        <property name="text">
-        <string>시작하기</string>
+        <string>로그인 상태 :</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="stopButton">
+      <widget class="QLabel" name="loginStatus">
+       <property name="font">
+        <font>
+         <pointsize>-1</pointsize>
+        </font>
+       </property>
        <property name="text">
-        <string>끝내기</string>
+        <string>비회원</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -84,12 +365,24 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>940</width>
+     <width>1386</width>
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuSetting">
+    <property name="title">
+     <string>Setting</string>
+    </property>
+    <addaction name="actiontest"/>
+   </widget>
+   <addaction name="menuSetting"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actiontest">
+   <property name="text">
+    <string>test</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
